@@ -4,4 +4,29 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "django>=5.2.6",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.6",
+    "django-stubs>=5.2.5",
+    "mypy>=1.18.1",
+    "pytest>=8.4.2",
+    "ruff>=0.13.0",
+]
+
+[tool.ruff]
+target-version = "py313"
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+python_version = 3.13
+strict = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
+
+[tool.coverage.run]
+omit = ["*/test_*.py"]
