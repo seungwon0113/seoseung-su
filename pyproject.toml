@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "django>=5.2.6",
+    "django-environ>=0.12.0",
+    "psycopg2>=2.9.10",
 ]
 
 [dependency-groups]
@@ -22,6 +24,7 @@ target-version = "py313"
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
+ignore_missing_imports = true
 python_version = 3.13
 strict = true
 
@@ -30,3 +33,7 @@ django_settings_module = "config.settings"
 
 [tool.coverage.run]
 omit = ["*/test_*.py"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true

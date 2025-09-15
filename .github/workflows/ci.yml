@@ -32,6 +32,10 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
 
+      - name: Set multiline environment variable
+        run: |
+          echo "${{ secrets.ENVS }}" >> .env
+
       - name: Run Ruff
         run: |
           uv run ruff check --select I --fix
@@ -42,6 +46,7 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    environment: DJANGO
     steps:
       - uses: actions/checkout@v4
       - name: "Set up Python"
@@ -65,7 +70,14 @@ jobs:
       - name: Install the project
         run: uv sync --locked --all-extras --dev
 
+      - name: Set multiline environment variable
+        run: |
+          echo "${{ secrets.ENVS }}" >> .env
+
       - name: Run tests
         run: |
           uv run coverage run -m pytest .
           uv run coverage report -m
+
+      - name: Django tests
+        run: uv run python manage.py test
