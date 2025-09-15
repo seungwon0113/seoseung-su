@@ -71,4 +71,4 @@ jobs:
           uv run coverage report -m
 
       - name: Django tests
-        run: python manage.py test
+        run: uv run python manage.py test
