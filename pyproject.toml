@@ -1,5 +1,5 @@
 [project]
-name = "seseung-su"
+name = "seseung-soo"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -16,6 +16,7 @@ dev = [
     "django-stubs>=5.2.5",
     "mypy>=1.18.1",
     "pytest>=8.4.2",
+    "pytest-django>=4.11.1",
     "ruff>=0.13.0",
 ]
 
@@ -37,3 +38,7 @@ omit = ["*/test_*.py"]
 [tool.coverage.report]
 fail_under = 80
 show_missing = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
