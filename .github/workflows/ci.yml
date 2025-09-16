@@ -47,6 +47,24 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     environment: DJANGO
+    services:
+      # postgresql db service
+      db:
+        image: postgres:14
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pw1234
+          POSTGRES_DB: seoseung_soo
+          TZ: Asia/Seoul
+        # health check
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       - name: "Set up Python"
