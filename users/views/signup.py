@@ -21,9 +21,11 @@ class SignupView(View):
     def post(self, request: HttpRequest) -> HttpResponse:
         form = SignupForm(request.POST)
         if form.is_valid():
-            UserService.create_and_login_user(request, form.cleaned_data)
-            return redirect('login')
-        else:
-            context = {'form': form}
-            return render(request, 'users/signup.html', context)
+            try:
+                UserService.create_and_login_user(request, form.cleaned_data)
+                return redirect('login')
+            except ValueError as e:
+                form.add_error(None, str(e))
+        context = {'form': form}
+        return render(request, 'users/signup.html', context)
 
