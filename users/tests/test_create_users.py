@@ -1,9 +1,125 @@
+from typing import Any
+
+import pytest
+from django.test import Client
+from pytest import MonkeyPatch
+
+from users.models import User
 
 
-# Create your tests here.
-def add(a: int, b: int) -> int:
-    return a + b
+@pytest.mark.django_db
+class TestSignupUsers:
 
-def test_add() -> None:
-    add(1, 2)
-    assert add(1, 2) == 3
+    def setup_method(self) -> None:
+        self.client = Client()
+
+
+    def test_signup_get_redirect_authenticated(self) -> None:
+        User.objects.create_user(username='signup', email='signup@signup.com', password='signup', phone_number='00000000000', personal_info_consent=True)
+        self.client.login(email='signup@signup.com', password='signup')
+        response = self.client.get('/users/signup/')
+        assert response.status_code == 302
+        assert response.headers['Location'] == '/'
+        assert len(response.templates) == 0
+
+    def test_signup_get_renders_for_anonymous(self) -> None:
+        response = self.client.get('/users/signup/')
+        assert response.status_code == 200
+        # 템플릿이 렌더되어 컨텐츠 일부가 포함되는지 확인
+        content = response.content.decode()
+        assert 'SeoSeung-Soo 회원가입' in content
+
+    def test_signup_post_with_valid_form_redirects(self) -> None:
+        response = self.client.post("/users/signup/", {
+            "username": "signup",
+            "email": "signup@signup.com",
+            "password": "signup",
+            "passwordConfirm": "signup",
+            "phone_number": "00000000000",
+            "personal_info_consent": "on"
+        })
+        assert response.status_code == 302
+        assert response.headers["Location"] == "/users/login/"
+
+    def test_signup_post_service_error_renders_form_error(self, monkeypatch: MonkeyPatch) -> None:
+        # 서비스에서 ValueError가 발생하는 경우 (예: DB 무결성 위반을 서비스가 래핑)
+        from users.services import user_signup as service_module
+        def raise_value_error(*args: Any, **kwargs: Any) -> None:
+            raise ValueError("이미 존재하는 아이디 또는 이메일입니다.")
+        monkeypatch.setattr(service_module.UserService, 'create_and_login_user', raise_value_error)
+
+        response = self.client.post('/users/signup/', {
+            "username": "serviceerr",
+            "email": "serviceerr@example.com",
+            "password": "signup",
+            "passwordConfirm": "signup",
+            "phone_number": "01012121212",
+            "personal_info_consent": "on"
+        })
+        # 리다이렉트가 아닌 동일 페이지 렌더링
+        assert response.status_code == 200
+        assert '이미 존재하는 아이디 또는 이메일입니다.' in response.content.decode()
+
+    def test_signup_post_invalid_form_shows_errors(self) -> None:
+        response = self.client.post("/users/signup/", {
+            "username": "",
+            "email": "invalid-email",
+            "password": "123",
+            "passwordConfirm": "456",
+            "phone_number": "",
+            "personal_info_consent": "",  # 동의 안 함 → invalid
+        })
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert "이름을 입력해 주세요." in content
+        assert "비밀번호는 최소 6자 이상이어야 합니다." in content
+        # assert "비밀번호가 일치하지 않습니다." in content
+
+    def test_signup_post_duplicate_username_shows_error(self) -> None:
+        User.objects.create_user(
+            username='dupuser', email='dupuser@example.com', password='x',
+            phone_number='01000000000', personal_info_consent=True
+        )
+        response = self.client.post("/users/signup/", {
+            "username": "dupuser",
+            "email": "new@example.com",
+            "password": "signup",
+            "passwordConfirm": "signup",
+            "phone_number": "01012345678",
+            "personal_info_consent": "on"
+        })
+        assert response.status_code == 200
+        assert "이미 존재하는 아이디입니다." in response.content.decode()
+
+    def test_signup_post_duplicate_email_shows_error(self) -> None:
+        User.objects.create_user(
+            username='newuser', email='dup@example.com', password='x',
+            phone_number='01099999999', personal_info_consent=True
+        )
+        response = self.client.post("/users/signup/", {
+            "username": "another",
+            "email": "dup@example.com",
+            "password": "signup",
+            "passwordConfirm": "signup",
+            "phone_number": "01088888888",
+            "personal_info_consent": "on"
+        })
+        assert response.status_code == 200
+        assert "이미 가입된 이메일입니다." in response.content.decode()
+
+    def test_signup_post_duplicate_phone_number_shows_error(self) -> None:
+        User.objects.create_user(
+            username='p1', email='p1@example.com', password='x',
+            phone_number='01077777777', personal_info_consent=True
+        )
+        response = self.client.post("/users/signup/", {
+            "username": "p2",
+            "email": "p2@example.com",
+            "password": "signup",
+            "passwordConfirm": "signup",
+            "phone_number": "01077777777",
+            "personal_info_consent": "on"
+        })
+        assert response.status_code == 200
+        assert "이미 등록된 휴대폰 번호입니다." in response.content.decode()
+
