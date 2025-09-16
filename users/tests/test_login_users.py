@@ -37,7 +37,7 @@ class TestLoginView:
             "password": "testtest",
         })
         assert response.status_code == 302
-        assert response.headers["Location"] == "/users/login/"
+        assert response.headers["Location"] == "/"
 
     def test_login_post_with_invalid_form_shows_errors(self) -> None:
         """유효하지 않은 폼 데이터로 POST 요청시 에러 표시 테스트"""

@@ -29,7 +29,7 @@ class LoginView(View):
 
             if user is not None:
                 login(request, user)
-                return redirect('login')  # URL name 사용
+                return redirect('home')  # URL name 사용
             else:
                 form.add_error(None, '유효하지 않은 사용자명 또는 비밀번호입니다.')
 
