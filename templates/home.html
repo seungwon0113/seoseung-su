@@ -19,16 +19,24 @@
     <h3 class="section-title">STEADY SELLER</h3>
     <p class="section-sub">가장 많은 사랑을 받은 상품입니다.</p>
     <div class="product-grid">
-      {% for i in "1234" %}
+      {% for product in products %}
       <article class="product-card">
-        <a href="#" class="product-thumb" aria-label="상품 상세">
-          <img src="https://picsum.photos/seed/{{ forloop.counter }}/600/750" alt="product">
+        <a href="{% url 'products-detail' product.name %}" class="product-thumb" aria-label="상품 상세">
+          {% if product.image.first %}
+            <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}">
+          {% else %}
+            <img src="https://picsum.photos/seed/{{ forloop.counter }}/600/750" alt="{{ product.name }}">
+          {% endif %}
         </a>
         <div class="product-info">
-          <h4 class="product-name">PRODUCT {{ forloop.counter }}</h4>
+          <h4 class="product-name">{{ product.name }}</h4>
           <div class="product-price">
-            <span class="sale">41,000원</span>
-            <span class="origin">45,000원</span>
+            {% if product.sale_price %}
+              <span class="sale">{{ product.sale_price|floatformat:0 }}원</span>
+              <span class="origin">{{ product.price|floatformat:0 }}원</span>
+            {% else %}
+              <span class="price">{{ product.price|floatformat:0 }}원</span>
+            {% endif %}
           </div>
         </div>
         <div class="product-actions">
@@ -37,6 +45,10 @@
           <button aria-label="share">⤴</button>
         </div>
       </article>
+      {% empty %}
+      <div class="empty-products">
+        <p>등록된 상품이 없습니다.</p>
+      </div>
       {% endfor %}
     </div>
   </section>

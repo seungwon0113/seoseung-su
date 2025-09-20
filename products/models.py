@@ -17,6 +17,7 @@ class Product(BaseModel):
     description = models.TextField()
     image = models.ManyToManyField(ProductImage, blank=True, db_table='product_image_cdt')
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     stock = models.IntegerField()
     is_live = models.BooleanField(default=False)
     is_sold = models.BooleanField(default=False)

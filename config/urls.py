@@ -25,7 +25,11 @@ from users import urls as users_urls
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    return render(request, 'home.html')
+    from products.models import Product
+    # 판매 중인 상품 중 최신 4개를 가져옴
+    products = Product.objects.filter(is_live=True, is_sold=False).order_by('-created_at')[:4]
+    context = {'products': products}
+    return render(request, 'home.html', context)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
