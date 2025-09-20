@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+{% load product_filters %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/products/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <div class="products-detail">
+        <div class="product-images">
+            {% if products.image.all %}
+                <div class="main-image">
+                    <img src="{{ products.image.first.image.url }}" alt="{{ products.name }}" id="mainImage">
+                </div>
+                {% if products.image.count > 1 %}
+                <div class="thumbnail-images">
+                    {% for image in products.image.all %}
+                    <img src="{{ image.image.url }}" alt="{{ products.name }}" class="thumbnail" onclick="changeMainImage('{{ image.image.url }}')">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="no-image">
+                    <span>이미지 없음</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="product-info">
+            <h1 class="product-name">{{ products.name }}</h1>
+            <p class="product-description">{{ products.description }}</p>
+            
+            <div class="price-section">
+                {% if products.sale_price %}
+                    <div class="price-row">
+                        <span class="sale-price">{{ products.sale_price|floatformat:0 }}원</span>
+                        <span class="original-price">{{ products.price|floatformat:0 }}원</span>
+                        <span class="discount-rate">{{ products.price|discount_rate:products.sale_price }}% 할인</span>
+                    </div>
+                {% else %}
+                    <div class="price-row">
+                        <span class="price">{{ products.price|floatformat:0 }}원</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="product-details">
+                <div class="detail-item">
+                    <span class="label">재고:</span>
+                    <span class="value">{{ products.stock }}개</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">상태:</span>
+                    <span class="value">
+                        {% if products.is_sold %}
+                            <span class="status sold">품절</span>
+                        {% elif products.is_live %}
+                            <span class="status live">판매중</span>
+                        {% else %}
+                            <span class="status draft">미판매</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="product-actions">
+                {% if products.is_live and not products.is_sold %}
+                    <button class="btn btn-primary btn-large">장바구니 담기</button>
+                    <button class="btn btn-secondary btn-large">즉시 구매</button>
+                {% else %}
+                    <button class="btn btn-disabled btn-large" disabled>
+                        {% if products.is_sold %}품절{% else %}판매 준비중{% endif %}
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function changeMainImage(imageUrl) {
+    document.getElementById('mainImage').src = imageUrl;
+}
+</script>
+{% endblock %}

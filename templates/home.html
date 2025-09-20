@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>메인페이지</title>
-</head>
-<body>
-    <h1>{{ user.username }} 입니다.</h1>
-</body>
-</html>
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="hero-slide">
+      <div class="hero-text">
+        <h2>New Season</h2>
+        <p>가장 사랑받는 아이템을 만나보세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h3 class="section-title">STEADY SELLER</h3>
+    <p class="section-sub">가장 많은 사랑을 받은 상품입니다.</p>
+    <div class="product-grid">
+      {% for product in products %}
+      <article class="product-card">
+        <a href="{% url 'products-detail' product.name %}" class="product-thumb" aria-label="상품 상세">
+          {% if product.image.first %}
+            <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}">
+          {% else %}
+            <img src="https://picsum.photos/seed/{{ forloop.counter }}/600/750" alt="{{ product.name }}">
+          {% endif %}
+        </a>
+        <div class="product-info">
+          <h4 class="product-name">{{ product.name }}</h4>
+          <div class="product-price">
+            {% if product.sale_price %}
+              <span class="sale">{{ product.sale_price|floatformat:0 }}원</span>
+              <span class="origin">{{ product.price|floatformat:0 }}원</span>
+            {% else %}
+              <span class="price">{{ product.price|floatformat:0 }}원</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="product-actions">
+          <button aria-label="wish">♡</button>
+          <button aria-label="cart">🛒</button>
+          <button aria-label="share">⤴</button>
+        </div>
+      </article>
+      {% empty %}
+      <div class="empty-products">
+        <p>등록된 상품이 없습니다.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
