@@ -26,6 +26,7 @@
               placeholder="이메일을 입력하세요"
               class="form-input"
               aria-describedby="emailHelp"
+              autocomplete="email"
             />
             <p id="emailHelp" class="form-error hidden">올바른 이메일을 입력해주세요.</p>
           </div>
@@ -40,6 +41,7 @@
                 minlength="6"
                 placeholder="비밀번호를 입력하세요"
                 class="form-input"
+                autocomplete="current-password"
               />
               <button type="button" id="togglePwd" aria-label="비밀번호 표시" class="password-toggle">
                 보기
@@ -75,33 +77,34 @@
           <p class="social-subtitle">간편한 회원가입으로 쉽게 본 사이트를 이용할 수 있습니다.<br>소셜로그인으로 쉽게 시작하기</p>
         </header>
 
-        <div class="kakao-login">
-          <button type="button" class="kakao-btn">
-            <span class="kakao-icon">💬</span>
-            카카오로 3초만에 시작하기
-          </button>
-        </div>
+         <div class="social-icons">
+           <div class="google-login">
+             <div id="g_id_onload"
+                  data-client_id="{{ google_client_id }}"
+                  data-callback="handleCredentialResponse"
+                  data-use_fedcm_for_prompt="false"
+                  data-shape="circle"
+                  data-type="icon"
+                  data-auto_prompt="false"></div>
+             <div class="g_id_signin" 
+                  data-shape="circle"
+                  data-type="icon"
+                  data-size="large"></div>
+           </div>
+           
+           <button type="button" class="social-icon-btn kakao-icon-btn">
+             <span class="kakao-icon">💬</span>
+           </button>
+           
+           <button type="button" class="social-icon-btn naver-icon-btn">
+             <span class="naver-icon">N</span>
+           </button>
+           
+           <button type="button" class="social-icon-btn facebook-icon-btn">
+             <span class="facebook-icon">f</span>
+           </button>
+         </div>
 
-        <div class="other-social">
-          <p class="other-social-title">다른 방법으로 로그인을 해보세요</p>
-          <div class="social-buttons">
-            <button type="button" class="social-btn naver-btn">
-              <span class="social-icon">N</span>
-            </button>
-            <button type="button" class="social-btn facebook-btn">
-              <span class="social-icon">f</span>
-            </button>
-            <button type="button" class="social-btn yahoo-btn">
-              <span class="social-icon">Y!</span>
-            </button>
-            <button type="button" class="social-btn google-btn">
-              <span class="social-icon">G</span>
-            </button>
-            <button type="button" class="social-btn line-btn">
-              <span class="social-icon">L</span>
-            </button>
-          </div>
-        </div>
 
         <div class="benefits-section">
           <h3 class="benefits-title">MEMBERSHIP BENEFIT</h3>
@@ -131,5 +134,10 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async></script>
+<!-- Google 로그인 전용 JavaScript (Django와 분리) -->
+<script src="{% static 'js/google-login.js' %}" defer></script>
+<!-- 기존 로그인 JavaScript -->
 <script src="{% static 'js/users/login.js' %}" defer></script>
 {% endblock %}

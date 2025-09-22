@@ -1,5 +1,6 @@
 from typing import cast
 
+from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -15,12 +16,18 @@ class LoginView(View):
         if user.is_authenticated:
             return redirect('home')
         form = LoginForm()
-        context = {'form': form}
+        context = {
+            'form': form,
+            'google_client_id': settings.GOOGLE_OAUTH2_CLIENT_ID
+        }
         return render(request, 'users/login.html', context)
 
     def post(self, request: HttpRequest) -> HttpResponse:
         form = LoginForm(request.POST)
-        context = {'form': form}
+        context = {
+            'form': form,
+            'google_client_id': settings.GOOGLE_OAUTH2_CLIENT_ID
+        }
         if form.is_valid():
             # 실제 로그인 로직 추가
             email = form.cleaned_data['email']

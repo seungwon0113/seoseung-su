@@ -151,3 +151,43 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_EXPIRE_SECONDS = 3600  # 1 hour
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+# Google OAuth 설정
+GOOGLE_OAUTH2_CLIENT_ID = '114955485399-nu8cf6lkng9i1ib16htqiheloclhms02.apps.googleusercontent.com'
+GOOGLE_OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
+
+# 소셜 로그인 설정
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = GOOGLE_OAUTH2_CLIENT_ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = GOOGLE_OAUTH2_CLIENT_SECRET
+
+# Google GSI 설정
+GOOGLE_GSI_CLIENT_ID = GOOGLE_OAUTH2_CLIENT_ID
+
+# 허용된 호스트에 localhost 추가 (개발용)
+if DEBUG:
+    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', "*"])
+
+# CORS 설정 (Google GSI용)
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = [
+    "https://accounts.google.com",
+    "https://www.google.com",
+]
+
+# 개발 서버용 추가 설정
+if DEBUG:
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOW_ALL_ORIGINS = True
+
+# CSP 설정 (Google GSI용)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://accounts.google.com")
+CSP_FRAME_SRC = ("'self'", "https://accounts.google.com")
+CSP_CONNECT_SRC = ("'self'", "https://accounts.google.com")
+
+# 개발 서버용 보안 헤더 설정 (Google OAuth용)
+if DEBUG:
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+    SECURE_REFERRER_POLICY = None
+    # Google OAuth를 위한 추가 설정
+    SECURE_BROWSER_XSS_FILTER = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
