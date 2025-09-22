@@ -1,86 +1,135 @@
+{% extends "base.html" %}
 {% load static %}
-<html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <script src="{% static 'js/users/login.js' %}" defer></script>
-  <title>SeoSeung-Soo 로그인</title>
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="min-h-screen flex items-center justify-center px-4">
-  <main class="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-8 scale-90">
-    <header class="text-center mb-6">
-      <h1 class="logo" class="text-2xl font-light">SeoSeung-Soo</h1>
-      <p class="text-sm text-gray-500 mt-1">계정으로 로그인하여 쇼핑을 시작하세요.</p>
-    </header>
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/users/login.css' %}">
+{% endblock %}
 
-    <!-- 로그인 폼 -->
-    <form id="loginForm" method="post" action="{% url 'login' %}" novalidate class="space-y-4">
-      {% csrf_token %}
+{% block content %}
+<div class="login-container">
+  <div class="login-wrapper">
+    <div class="login-section">
+      <div class="login-card">
+        <header class="login-header">
+          <h1 class="login-title">로그인</h1>
+        </header>
 
-      <label class="block">
-        <span class="text-sm font-medium text-gray-700">이메일</span>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          placeholder="you@example.com"
-          class="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:ring-2 focus:ring-indigo-200 p-2"
-          aria-describedby="emailHelp"
-        />
-        <p id="emailHelp" class="mt-1 text-xs text-red-600 hidden">올바른 이메일을 입력해주세요.</p>
-      </label>
+        <form id="loginForm" method="post" action="{% url 'login' %}" novalidate class="login-form">
+          {% csrf_token %}
 
-      <label class="block relative">
-        <span class="text-sm font-medium text-gray-700">비밀번호</span>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          minlength="6"
-          placeholder="비밀번호를 입력하세요"
-          class="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:ring-2 focus:ring-indigo-200 p-2 pr-10"
-        />
-        <button type="button" id="togglePwd" aria-label="비밀번호 표시" class="absolute right-2 top-9 text-sm text-gray-500">
-          보기
-        </button>
-        <p id="pwdHelp" class="mt-1 text-xs text-red-600 hidden">비밀번호는 최소 6자 이상이어야 합니다.</p>
-      </label>
+          <div class="form-group">
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="이메일을 입력하세요"
+              class="form-input"
+              aria-describedby="emailHelp"
+            />
+            <p id="emailHelp" class="form-error hidden">올바른 이메일을 입력해주세요.</p>
+          </div>
 
-      {% if form.non_field_errors %}
-        <p class="text-sm text-red-600">{{ form.non_field_errors.0 }}</p>
-      {% endif %}
+          <div class="form-group">
+            <div class="password-input-wrapper">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minlength="6"
+                placeholder="비밀번호를 입력하세요"
+                class="form-input"
+              />
+              <button type="button" id="togglePwd" aria-label="비밀번호 표시" class="password-toggle">
+                보기
+              </button>
+            </div>
+            <p id="pwdHelp" class="form-error hidden">비밀번호는 최소 6자 이상이어야 합니다.</p>
+          </div>
 
-      <div class="flex items-center justify-between">
-        <a href="#" class="text-sm text-indigo-600 hover:underline">비밀번호를 잊으셨나요?</a>
+          {% if form.non_field_errors %}
+            <div class="form-error">{{ form.non_field_errors.0 }}</div>
+          {% endif %}
+
+          <div class="form-actions">
+          </div>
+
+          <button type="submit" class="login-btn">
+            로그인
+          </button>
+          <div class="login-links">
+            <a href="#" class="login-link">아이디찾기</a>
+            <div class="login-link-separator"></div>
+            <a href="#" class="login-link">비밀번호찾기</a>
+          </div>
+          <a href="{% url 'signup' %}" class="signup-btn">회원가입</a>
+        </form>
       </div>
+    </div>
 
-      <button
-        type="submit"
-        class="w-full py-2 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-      >
-        로그인
-      </button>
+    <div class="social-section">
+      <div class="social-card">
+        <header class="social-header">
+          <h2 class="social-title">간편하게 로그인하기</h2>
+          <p class="social-subtitle">간편한 회원가입으로 쉽게 본 사이트를 이용할 수 있습니다.<br>소셜로그인으로 쉽게 시작하기</p>
+        </header>
 
-      <div class="text-center text-sm text-gray-500">또는</div>
+        <div class="kakao-login">
+          <button type="button" class="kakao-btn">
+            <span class="kakao-icon">💬</span>
+            카카오로 3초만에 시작하기
+          </button>
+        </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <button type="button" class="py-2 rounded-md border border-gray-200">Google로 로그인</button>
-        <button type="button" class="py-2 rounded-md border border-gray-200">Kakao로 로그인</button>
+        <div class="other-social">
+          <p class="other-social-title">다른 방법으로 로그인을 해보세요</p>
+          <div class="social-buttons">
+            <button type="button" class="social-btn naver-btn">
+              <span class="social-icon">N</span>
+            </button>
+            <button type="button" class="social-btn facebook-btn">
+              <span class="social-icon">f</span>
+            </button>
+            <button type="button" class="social-btn yahoo-btn">
+              <span class="social-icon">Y!</span>
+            </button>
+            <button type="button" class="social-btn google-btn">
+              <span class="social-icon">G</span>
+            </button>
+            <button type="button" class="social-btn line-btn">
+              <span class="social-icon">L</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="benefits-section">
+          <h3 class="benefits-title">MEMBERSHIP BENEFIT</h3>
+          <div class="benefits-list">
+            <div class="benefit-item">
+              <span class="benefit-icon">🎁</span>
+              <span class="benefit-text">총 20,000원의 쿠폰팩 증정</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">🚚</span>
+              <span class="benefit-text">5만원 이상 구매시 무료배송</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">📱</span>
+              <span class="benefit-text">앱 다운시 5% 쿠폰</span>
+            </div>
+            <div class="benefit-item">
+              <span class="benefit-icon">✅</span>
+              <span class="benefit-text">출석체크 이벤트</span>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
-      <p class="text-center text-sm text-gray-600">
-        계정이 없으신가요? <a href='{% url 'signup' %}' class="text-indigo-600 hover:underline">회원가입</a>
-      </p>
-    </form>
-    <section class="mt-6 text-xs text-gray-500">
-      <p>가입하면 최신 세일 정보와 맞춤형 추천을 받아보실 수 있습니다.</p>
-    </section>
-  </main>
-</body>
-</html>
+{% block scripts %}
+<script src="{% static 'js/users/login.js' %}" defer></script>
+{% endblock %}

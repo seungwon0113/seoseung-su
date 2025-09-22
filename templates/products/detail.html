@@ -46,29 +46,30 @@
                 {% endif %}
             </div>
             
-            <div class="product-details">
-                <div class="detail-item">
-                    <span class="label">재고:</span>
-                    <span class="value">{{ products.stock }}개</span>
+            <div class="shipping-info">
+                <div class="shipping-item">
+                    <span class="shipping-label">국내·해외배송:</span>
+                    <span class="shipping-value">국내배송</span>
                 </div>
-                <div class="detail-item">
-                    <span class="label">상태:</span>
-                    <span class="value">
-                        {% if products.is_sold %}
-                            <span class="status sold">품절</span>
-                        {% elif products.is_live %}
-                            <span class="status live">판매중</span>
-                        {% else %}
-                            <span class="status draft">미판매</span>
-                        {% endif %}
-                    </span>
+                <div class="shipping-item">
+                    <span class="shipping-label">배송방법:</span>
+                    <span class="shipping-value">택배</span>
+                </div>
+                <div class="shipping-item">
+                    <span class="shipping-label">배송비:</span>
+                    <span class="shipping-value">3,000원(50,000원 이상 구매 시 무료)</span>
                 </div>
             </div>
             
             <div class="product-actions">
                 {% if products.is_live and not products.is_sold %}
-                    <button class="btn btn-primary btn-large">장바구니 담기</button>
-                    <button class="btn btn-secondary btn-large">즉시 구매</button>
+                    <div class="primary-action">
+                        <button class="btn btn-primary btn-large">즉시 구매</button>
+                    </div>
+                    <div class="secondary-actions">
+                        <button class="btn btn-secondary btn-large">장바구니 담기</button>
+                        <button class="btn btn-thirdly btn-large">찜하기</button>
+                    </div>
                 {% else %}
                     <button class="btn btn-disabled btn-large" disabled>
                         {% if products.is_sold %}품절{% else %}판매 준비중{% endif %}

@@ -17,7 +17,10 @@ class User(AbstractUser, BaseModel):
     phone_number = models.CharField(max_length=13, unique=True)
     birth_date = models.DateField(null=True, blank=True)
     email = models.EmailField(unique=True)
-    personal_info_consent = models.BooleanField()
+    personal_info_consent = models.BooleanField(verbose_name="개인정보수집")
+    terms_of_use = models.BooleanField(verbose_name="이용약관")
+    sns_consent_to_receive = models.BooleanField(null=True, blank=True, default=False, verbose_name="sns수신")
+    email_consent_to_receive = models.BooleanField(null=True, blank=True, default=False, verbose_name="email수신")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

@@ -35,6 +35,9 @@ class TestUserService:
             'password': 'secret',
             'personal_info_consent': True,
             'phone_number': '01011112222',
+            'terms_of_use': True,
+            'sns_consent_to_receive': True,
+            'email_consent_to_receive': True
         })
         assert getattr(request, 'user', None) is user
 
@@ -54,6 +57,7 @@ class TestUserService:
                 'password': 'secret',
                 'personal_info_consent': True,
                 'phone_number': '01033334444',
+                'terms_of_use': True,
             })
         assert '이미 존재하는 아이디 또는 이메일입니다.' in str(exc.value)
 
