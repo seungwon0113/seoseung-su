@@ -21,7 +21,7 @@ class GoogleLoginService:
         while User.objects.filter(username=username).exists():
             username = f"{base_username}_{counter}"
             counter += 1
-            
+
         return username
 
     @staticmethod
@@ -78,13 +78,14 @@ class GoogleLoginService:
                     pass
                 
                 # 3. 새 사용자 생성
-                username = GoogleLoginService._generate_unique_username(email)
+                first_name = GoogleLoginService._generate_unique_username(email)
                 user = User.objects.create_user(
-                    username=username,
+                    #TODO: 추후 배송수령인 데이터 이용
+                    username=name.split(' ')[0] if name else '',
                     email=email,
                     password=None,  # 소셜 로그인은 비밀번호 없음
                     google_id=google_id,
-                    first_name=name.split(' ')[0] if name else '',
+                    first_name=first_name,
                     last_name=' '.join(name.split(' ')[1:]) if len(name.split(' ')) > 1 else '',
                     profile_image=picture,
                     is_active=True,
