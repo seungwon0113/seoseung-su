@@ -12,6 +12,9 @@ class SignupForm(forms.Form):
     passwordConfirm = forms.CharField(widget=forms.PasswordInput)
     phone_number = forms.CharField(widget=forms.TextInput)
     personal_info_consent = forms.BooleanField()
+    terms_of_use = forms.BooleanField()
+    sns_consent_to_receive = forms.BooleanField(required=False)
+    email_consent_to_receive = forms.BooleanField(required=False)
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = cast(dict[str, Any], super().clean())

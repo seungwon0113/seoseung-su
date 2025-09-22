@@ -17,6 +17,7 @@ class TestProductCreateView:
             password="create_test_admin",
             username="admin_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
@@ -25,6 +26,7 @@ class TestProductCreateView:
             password="create_test_customer",
             username="customer_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01087654321"
         )
 
@@ -127,6 +129,7 @@ class TestProductUpdateView:
             password="create_test_admin",
             username="admin_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
@@ -135,6 +138,7 @@ class TestProductUpdateView:
             password="create_test_customer",
             username="customer_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01087654321"
         )
         self.product = Product.objects.create(
@@ -257,6 +261,7 @@ class TestDeleteProductImageView:
             password="create_test_admin",
             username="admin_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
@@ -265,6 +270,7 @@ class TestDeleteProductImageView:
             password="create_test_customer",
             username="customer_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01087654321"
         )
         self.product = Product.objects.create(
@@ -325,6 +331,7 @@ class TestProductListView:
             password="create_test_admin",
             username="admin_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
@@ -333,6 +340,7 @@ class TestProductListView:
             password="create_test_customer",
             username="customer_user",
             personal_info_consent=True,
+            terms_of_use=True,
             phone_number="01087654321"
         )
 

@@ -10,7 +10,7 @@ from users.models import User
 class TestProductDetail:
     def setup_method(self) -> None:
         self.client = Client()
-        User.objects.create(role="admin", email="admin@admin.com", password="create_test_admin", username="create_test_user", personal_info_consent=True)
+        User.objects.create(role="admin", email="admin@admin.com", password="create_test_admin", username="create_test_user", personal_info_consent=True, terms_of_use=True)
 
     def test_product_detail_get(self) -> None:
         Product.objects.create(user_id=1, name="test_product", description="test_product", is_live=True, is_sold=False, stock=10, price=10000)
@@ -33,7 +33,7 @@ class TestProductDetail:
     #     assert response.content.decode() or "상품 이름이 작성되지 않았습니다." in response.content.decode()
 
     def test_product_role_not_admin(self) -> None:
-        User.objects.create(role="customer", email="customer@customer.com", password="create_test_customer",username="create_test_customer", personal_info_consent=True, phone_number="0123456789")
+        User.objects.create(role="customer", email="customer@customer.com", password="create_test_customer",username="create_test_customer", personal_info_consent=True, phone_number="0123456789", terms_of_use=True)
         customer_user = User.objects.get(username="create_test_customer")
         Product.objects.create(user_id=customer_user.id, name="test_customer_product", description="test_customer_product", is_live=True, is_sold=False, stock=10, price=10000)
 

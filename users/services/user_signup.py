@@ -18,7 +18,10 @@ class UserService:
                 email=cleaned_data["email"],
                 password=cleaned_data["password"],
                 personal_info_consent=cleaned_data["personal_info_consent"],
-                phone_number=cleaned_data["phone_number"]
+                phone_number=cleaned_data["phone_number"],
+                terms_of_use=cleaned_data.get("terms_of_use", False),
+                sns_consent_to_receive=cleaned_data.get("sns_consent_to_receive", False),
+                email_consent_to_receive=cleaned_data.get("email_consent_to_receive", False)
             )
             return request.user
         except IntegrityError:

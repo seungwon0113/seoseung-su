@@ -19,6 +19,7 @@ class TestPermission:
             password='testtest',
             phone_number='00000000000',
             personal_info_consent=True,
+            terms_of_use=True,
             role='admin'
         )
         request = rf.get('/fake-url/')
