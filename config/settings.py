@@ -158,10 +158,9 @@ GOOGLE_OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
 
 # 허용된 호스트에 localhost 추가 (개발용)
 if DEBUG:
-    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost', "*"])
+    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
 
 # CORS 설정 (Google GSI용)
-CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
     "https://accounts.google.com",
     "https://www.google.com",

@@ -3,6 +3,7 @@ import json
 from django.contrib.auth import login
 from django.http import HttpRequest, JsonResponse
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 
@@ -38,8 +39,14 @@ class GoogleLoginView(View):
                 # 사용자 로그인
                 login(request, user)
                 
-                # 리다이렉트 URL 결정 (홈페이지로 고정)
+                # 안전한 리다이렉트 URL 결정 (오픈 리디렉션 취약점 방지)
                 next_url = request.GET.get('next', '/')
+                if not url_has_allowed_host_and_scheme(
+                    url=next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure()
+                ):
+                    next_url = '/'  # 안전하지 않은 URL은 홈페이지로 리다이렉트
                 
                 return JsonResponse({
                     'success': True,

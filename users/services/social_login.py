@@ -2,6 +2,7 @@
 from typing import Any, Dict, Optional, Tuple, cast
 
 from django.conf import settings
+from django.db import transaction
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
@@ -9,6 +10,19 @@ from users.models import User
 
 
 class GoogleLoginService:
+
+    @staticmethod
+    def _generate_unique_username(email: str) -> str:
+        """이메일에서 유니크한 사용자명 생성"""
+        base_username = email.split('@')[0]
+        username = base_username
+        counter = 1
+        
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}_{counter}"
+            counter += 1
+            
+        return username
 
     @staticmethod
     def verify_google_token(credential: str) -> Optional[Dict[str, Any]]:
@@ -45,40 +59,41 @@ class GoogleLoginService:
             if not google_id or not email:
                 raise ValueError("Google 사용자 정보가 없습니다.")
             
-            # 기존 사용자 조회 (Google ID 또는 이메일로)
-            try:
-                user = User.objects.get(google_id=google_id)
-            except User.DoesNotExist:
+            # 원자적 사용자 조회/생성 (경쟁 상태 방지)
+            with transaction.atomic():
+                # 1. Google ID로 기존 사용자 조회
                 try:
-                    user = User.objects.get(email=email)
-                    # 기존 사용자에 Google ID 추가
+                    user = User.objects.get(google_id=google_id)
+                    return user
+                except User.DoesNotExist:
+                    pass
+                
+                # 2. 이메일로 기존 사용자 조회 및 Google ID 추가
+                try:
+                    user = User.objects.select_for_update().get(email=email)
                     user.google_id = google_id
                     user.save()
+                    return user
                 except User.DoesNotExist:
-                    # 새 사용자 생성
-                    username = email.split('@')[0]  # 이메일에서 사용자명 추출
-                    # 중복된 사용자명 처리
-                    counter = 1
-                    original_username = username
-                    while User.objects.filter(username=username).exists():
-                        username = f"{original_username}_{counter}"
-                        counter += 1
-                    
-                    user = User.objects.create_user(
-                        username=username,
-                        email=email,
-                        password=None,  # 소셜 로그인은 비밀번호 없음
-                        google_id=google_id,
-                        first_name=name.split(' ')[0] if name else '',
-                        last_name=' '.join(name.split(' ')[1:]) if len(name.split(' ')) > 1 else '',
-                        profile_image=picture,
-                        is_active=True,
-                        # 기본 동의 항목들
-                        terms_of_use=True,
-                        personal_info_consent=True,
-                        sns_consent_to_receive=False,
-                        email_consent_to_receive=False
-                    )
+                    pass
+                
+                # 3. 새 사용자 생성
+                username = GoogleLoginService._generate_unique_username(email)
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=None,  # 소셜 로그인은 비밀번호 없음
+                    google_id=google_id,
+                    first_name=name.split(' ')[0] if name else '',
+                    last_name=' '.join(name.split(' ')[1:]) if len(name.split(' ')) > 1 else '',
+                    profile_image=picture,
+                    is_active=True,
+                    # 기본 동의 항목들
+                    terms_of_use=True,
+                    personal_info_consent=True,
+                    sns_consent_to_receive=False,
+                    email_consent_to_receive=False
+                )
             
             return user
         except Exception as e:
