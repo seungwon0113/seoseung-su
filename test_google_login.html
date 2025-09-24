@@ -9,7 +9,7 @@
     
     <!-- Google 로그인 설정 -->
     <div id="g_id_onload"
-         data-client_id=
+         data-client_id={{ google_client_id }}
          data-callback="handleCredentialResponse">
     </div>
     
@@ -18,8 +18,6 @@
     
     <script>
         function handleCredentialResponse(response) {
-            console.log("=== Google 로그인 성공! ===");
-            console.log("JWT Token:", response.credential);
             
             // JWT 디코딩
             const base64Url = response.credential.split('.')[1];
@@ -29,7 +27,6 @@
             }).join(''));
             
             const payload = JSON.parse(jsonPayload);
-            console.log("사용자 정보:", payload);
             
             document.body.innerHTML += `
                 <h2>로그인 성공!</h2>
@@ -41,7 +38,7 @@
         
         window.onload = function () {
             google.accounts.id.initialize({
-                client_id: "114955485399-nu8cf6lkng9i1ib16htqiheloclhms02.apps.googleusercontent.com",
+                client_id: {{ google_client_id }},
                 callback: handleCredentialResponse
             });
         }

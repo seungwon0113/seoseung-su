@@ -27,6 +27,6 @@ class UserService:
         except IntegrityError:
             raise ValueError("이미 존재하는 아이디 또는 이메일입니다.")
 
-    #TODO: https://developers.kakao.com/tool/template-builder/app/1315204/template
-    '''카카오톡 배송목록 메세지 전달 추가 예정'''
+#TODO: https://developers.kakao.com/tool/template-builder/app/1315204/template
+'''카카오톡 배송목록 메세지 전달 추가 예정'''
 

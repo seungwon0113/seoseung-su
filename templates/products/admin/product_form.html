@@ -16,7 +16,6 @@
         <form method="post" enctype="multipart/form-data" class="product-form">
             {% csrf_token %}
             
-            <!-- 기본 정보 -->
             <div class="form-section">
                 <h2 class="section-title">기본 정보</h2>
                 
@@ -65,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- 상태 설정 -->
             <div class="form-section">
                 <h2 class="section-title">상태 설정</h2>
                 
@@ -82,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- 이미지 업로드 -->
             <div class="form-section">
                 <h2 class="section-title">상품 이미지</h2>
                 
@@ -95,7 +92,6 @@
                     {% endif %}
                 </div>
 
-                <!-- 기존 이미지 표시 (수정 시) -->
                 {% if product and product.image.all %}
                 <div class="existing-images">
                     <h3 class="sub-title">기존 이미지</h3>
@@ -111,14 +107,12 @@
                 {% endif %}
             </div>
 
-            <!-- 폼 에러 -->
             {% if form.non_field_errors %}
             <div class="form-error global-error">
                 {{ form.non_field_errors.0 }}
             </div>
             {% endif %}
 
-            <!-- 버튼 -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     {% if product %}수정{% else %}등록{% endif %}

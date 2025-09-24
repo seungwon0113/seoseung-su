@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'users.utils.middleware.ConsentRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -155,6 +156,11 @@ SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
 # Google OAuth 설정
 GOOGLE_OAUTH2_CLIENT_ID = env('GOOGLE_OAUTH2_CLIENT_ID')
 GOOGLE_OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
+
+# 카카오 로그인 설정
+KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY', default='')
+KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='')
+KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/users/auth/kakao/callback/')
 
 # 허용된 호스트에 localhost 추가 (개발용)
 if DEBUG:
