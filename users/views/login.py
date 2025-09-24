@@ -1,7 +1,7 @@
 from typing import cast
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
@@ -18,7 +18,8 @@ class LoginView(View):
         form = LoginForm()
         context = {
             'form': form,
-            'google_client_id': settings.GOOGLE_OAUTH2_CLIENT_ID
+            'google_client_id': settings.GOOGLE_OAUTH2_CLIENT_ID,
+            'kakao_rest_api_key': settings.KAKAO_REST_API_KEY
         }
         return render(request, 'users/login.html', context)
 
@@ -26,7 +27,8 @@ class LoginView(View):
         form = LoginForm(request.POST)
         context = {
             'form': form,
-            'google_client_id': settings.GOOGLE_OAUTH2_CLIENT_ID
+            'google_client_id': settings.GOOGLE_OAUTH2_CLIENT_ID,
+            'kakao_rest_api_key': settings.KAKAO_REST_API_KEY
         }
         if form.is_valid():
             # 실제 로그인 로직 추가
@@ -41,3 +43,8 @@ class LoginView(View):
                 form.add_error(None, '유효하지 않은 사용자명 또는 비밀번호입니다.')
 
         return render(request, 'users/login.html', context)
+
+class LogoutView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        logout(request)
+        return redirect('home')

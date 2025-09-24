@@ -12,7 +12,6 @@ from users.services.social_login import GoogleLoginService
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GoogleLoginView(View):
-    """Google 소셜 로그인 처리 뷰"""
     
     def post(self, request: HttpRequest) -> JsonResponse:
         try:
@@ -38,6 +37,23 @@ class GoogleLoginView(View):
             if user:
                 # 사용자 로그인
                 login(request, user)
+                
+                # 필수 동의 항목 체크
+                if not user.terms_of_use or not user.personal_info_consent:
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Google 로그인에 성공했습니다. 동의 항목을 확인해주세요.',
+                        'redirect_url': '/users/consent/',
+                        'requires_consent': True,
+                        'user': {
+                            'id': user.id,
+                            'username': user.username,
+                            'email': user.email,
+                            'first_name': user.first_name,
+                            'last_name': user.last_name,
+                            'role': user.role
+                        }
+                    })
                 
                 # 안전한 리다이렉트 URL 결정 (오픈 리디렉션 취약점 방지)
                 next_url = request.GET.get('next', '/')
@@ -77,3 +93,4 @@ class GoogleLoginView(View):
                 'success': False,
                 'message': f'서버 오류가 발생했습니다: {str(e)}'
             }, status=500)
+

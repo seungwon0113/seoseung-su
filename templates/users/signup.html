@@ -112,38 +112,42 @@
 
       <div class="form-row">
         <div class="form-label-cell">
-          <label for="phone_number" class="form-label">휴대전화</label>
+          <label for="phone1" class="form-label">휴대폰 번호 <span class="required">*</span></label>
         </div>
         <div class="form-input-cell">
-          <div class="phone-input-group">
+          <div class="phone-input-wrapper">
             <input
               id="phone1"
+              name="phone1"
               type="tel"
-              class="phone-input"
-              value="010"
-              readonly
+              required
+              maxlength="3"
+              placeholder="010"
+              class="form-input phone-input"
             />
             <span class="phone-separator">-</span>
             <input
               id="phone2"
+              name="phone2"
               type="tel"
-              class="phone-input"
+              required
               maxlength="4"
+              placeholder="1234"
+              class="form-input phone-input"
             />
             <span class="phone-separator">-</span>
             <input
               id="phone3"
+              name="phone3"
               type="tel"
-              class="phone-input"
+              required
               maxlength="4"
-            />
-        <input
-          id="phone_number"
-          name="phone_number"
-              type="hidden"
-              value="{{ form.data.phone_number }}"
+              placeholder="5678"
+              class="form-input phone-input"
             />
           </div>
+          <input type="hidden" id="phone_number" name="phone_number" />
+          <p class="form-help">휴대폰 번호를 입력해주세요.</p>
           {% if form.phone_number.errors %}
           <p class="form-error">{{ form.phone_number.errors.0 }}</p>
           {% endif %}

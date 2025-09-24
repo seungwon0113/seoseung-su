@@ -54,8 +54,6 @@
             <div class="form-error">{{ form.non_field_errors.0 }}</div>
           {% endif %}
 
-          <div class="form-actions">
-          </div>
 
           <button type="submit" class="login-btn">
             로그인
@@ -92,8 +90,8 @@
                   data-size="large"></div>
            </div>
            
-           <button type="button" class="social-icon-btn kakao-icon-btn">
-             <span class="kakao-icon">💬</span>
+           <button type="button" class="social-icon-btn kakao-icon-btn" onclick="kakaoLogin()">
+             <img src="{% static 'images/social/kakao-talk-icon.png' %}" alt="카카오톡 로그인" class="kakao-icon-img">
            </button>
            
            <button type="button" class="social-icon-btn naver-icon-btn">
@@ -110,19 +108,19 @@
           <h3 class="benefits-title">MEMBERSHIP BENEFIT</h3>
           <div class="benefits-list">
             <div class="benefit-item">
-              <span class="benefit-icon">🎁</span>
+              <span class="benefit-icon">※</span>
               <span class="benefit-text">총 20,000원의 쿠폰팩 증정</span>
             </div>
             <div class="benefit-item">
-              <span class="benefit-icon">🚚</span>
+              <span class="benefit-icon">※</span>
               <span class="benefit-text">5만원 이상 구매시 무료배송</span>
             </div>
             <div class="benefit-item">
-              <span class="benefit-icon">📱</span>
+              <span class="benefit-icon">※</span>
               <span class="benefit-text">앱 다운시 5% 쿠폰</span>
             </div>
             <div class="benefit-item">
-              <span class="benefit-icon">✅</span>
+              <span class="benefit-icon">※</span>
               <span class="benefit-text">출석체크 이벤트</span>
             </div>
           </div>
@@ -136,8 +134,38 @@
 {% block scripts %}
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async></script>
+<!-- 카카오 SDK -->
+<script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+<script>
+  // 카카오 SDK 초기화 (Django 템플릿 변수 사용)
+  Kakao.init('{{ kakao_rest_api_key }}');
+  Kakao.isInitialized()
+</script>
 <!-- Google 로그인 전용 JavaScript (Django와 분리) -->
 <script src="{% static 'js/google-login.js' %}" defer></script>
+<!-- 카카오 로그인 전용 JavaScript (인라인) -->
+<script>
+// 카카오 로그인 함수
+function kakaoLogin() {
+    const currentDomain = window.location.origin;
+    
+    if (!Kakao.isInitialized()) {
+        Kakao.init('{{ kakao_rest_api_key }}');
+    }
+    
+    const kakaoClientId = '{{ kakao_rest_api_key }}';
+    const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${kakaoClientId}&redirect_uri=${currentDomain}/users/auth/kakao/callback/&response_type=code&scope=profile_nickname,account_email`;
+    
+    window.location.href = kakaoLoginUrl;
+}
+
+// 카카오 로그아웃 함수
+function kakaoLogout() {
+    Kakao.Auth.logout(function() {
+        console.log('카카오 로그아웃 완료');
+    });
+}
+</script>
 <!-- 기존 로그인 JavaScript -->
 <script src="{% static 'js/users/login.js' %}" defer></script>
 {% endblock %}
