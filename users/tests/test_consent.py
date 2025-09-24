@@ -49,7 +49,7 @@ class TestConsentView:
         response = client.get(consent_url)
         
         assert response.status_code == 302
-        assert 'users/login/' in response['Location']
+        assert '/users/login/' in response['Location']
     
     @pytest.mark.django_db
     def test_consent_view_already_consented_redirect(self, client: Client, consent_url: str, test_user_with_consent: 'User') -> None:
