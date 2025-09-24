@@ -37,8 +37,12 @@ class SignupForm(forms.Form):
             phone_number = phone1 + phone2 + phone3
             cleaned_data["phone_number"] = phone_number
         
-        # 휴대폰 번호 중복 체크
-        if phone_number and User.objects.filter(phone_number=phone_number).exists():
+        # 휴대폰 번호 필수 체크
+        if not phone_number:
+            self.add_error("phone_number", "휴대폰 번호를 입력해주세요.")
+        elif len(phone_number) != 11:
+            self.add_error("phone_number", "휴대폰 번호는 11자리여야 합니다.")
+        elif User.objects.filter(phone_number=phone_number).exists():
             self.add_error("phone_number", "이미 등록된 휴대폰 번호입니다.")
         
         return cleaned_data
@@ -54,14 +58,3 @@ class SignupForm(forms.Form):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("이미 가입된 이메일입니다.")
         return email
-
-    def clean_phone_number(self) -> str:
-        phone_number = self.cleaned_data.get("phone_number")
-        if not phone_number:
-            raise forms.ValidationError("휴대폰 번호를 입력해주세요.")
-        
-        # 중복 체크
-        if User.objects.filter(phone_number=phone_number).exists():
-            raise forms.ValidationError("이미 등록된 휴대폰 번호입니다.")
-        
-        return cast(str, phone_number)

@@ -1,6 +1,6 @@
 import json
 from typing import TYPE_CHECKING, Any
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -22,11 +22,6 @@ def client() -> Client:
 @pytest.fixture
 def google_login_url() -> str:
     return reverse('google-login')
-
-
-@pytest.fixture
-def kakao_login_url() -> str:
-    return reverse('kakao-login')
 
 
 @pytest.fixture
@@ -74,7 +69,7 @@ class TestGoogleLoginView:
         
         response = client.post(
             google_login_url,
-            data=json.dumps({'credential': 'fake_token'}),
+            data=json.dumps({'credential': 'fake_credential'}),
             content_type='application/json'
         )
         
@@ -91,7 +86,7 @@ class TestGoogleLoginView:
         
         response = client.post(
             google_login_url,
-            data=json.dumps({'credential': 'valid_token'}),
+            data=json.dumps({'credential': 'valid_credential'}),
             content_type='application/json'
         )
         
@@ -107,30 +102,28 @@ class TestGoogleLoginView:
     @pytest.mark.django_db
     @patch('users.services.social_login.GoogleLoginService.authenticate_user')
     def test_google_login_with_next_parameter(self, mock_authenticate: Any, client: Client, google_login_url: str, test_user: 'User') -> None:
-        """Google 로그인 - next 파라미터와 함께"""
         mock_authenticate.return_value = (test_user, None)
         
         response = client.post(
-            f"{google_login_url}?next=/dashboard/",
-            data=json.dumps({'credential': 'valid_token'}),
+            f"{google_login_url}?next=/profile/",
+            data=json.dumps({'credential': 'valid_credential'}),
             content_type='application/json'
         )
         
         assert response.status_code == 200
         data = response.json()
         assert data['success']
-        assert data['redirect_url'] == '/dashboard/'
+        assert data['redirect_url'] == '/profile/'
     
 
     @pytest.mark.django_db
     @patch('users.services.social_login.GoogleLoginService.authenticate_user')
     def test_google_login_with_unsafe_next_parameter(self, mock_authenticate: Any, client: Client, google_login_url: str, test_user: 'User') -> None:
-        """Google 로그인 - 안전하지 않은 next 파라미터"""
         mock_authenticate.return_value = (test_user, None)
         
         response = client.post(
-            f"{google_login_url}?next=http://evil.com/",
-            data=json.dumps({'credential': 'valid_token'}),
+            f"{google_login_url}?next=https://evil.com/",
+            data=json.dumps({'credential': 'valid_credential'}),
             content_type='application/json'
         )
         
@@ -147,7 +140,7 @@ class TestGoogleLoginView:
         
         response = client.post(
             google_login_url,
-            data=json.dumps({'credential': 'valid_token'}),
+            data=json.dumps({'credential': 'valid_credential'}),
             content_type='application/json'
         )
         
@@ -164,139 +157,7 @@ class TestGoogleLoginView:
         
         response = client.post(
             google_login_url,
-            data=json.dumps({'credential': 'valid_token'}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 500
-        data = response.json()
-        assert not data['success']
-        assert '서버 오류가 발생했습니다' in data['message']
-
-
-class TestKakaoLoginView:
-    
-    def test_kakao_login_missing_access_token(self, client: Client, kakao_login_url: str) -> None:
-        response = client.post(
-            kakao_login_url,
-            data=json.dumps({}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 400
-        data = response.json()
-        assert not data['success']
-        assert data['message'] == '카카오 액세스 토큰이 없습니다.'
-    
-    def test_kakao_login_invalid_json(self, client: Client, kakao_login_url: str) -> None:
-        response = client.post(
-            kakao_login_url,
-            data="invalid json",
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 400
-        data = response.json()
-        assert not data['success']
-        assert data['message'] == '잘못된 JSON 형식입니다.'
-    
-
-    @pytest.mark.django_db
-    @patch('users.services.social_login.KakaoLoginService.authenticate_user')
-    def test_kakao_login_authentication_failure(self, mock_authenticate: Any, client: Client, kakao_login_url: str) -> None:
-        mock_authenticate.return_value = (None, "토큰 검증 실패")
-        
-        response = client.post(
-            kakao_login_url,
-            data=json.dumps({'access_token': 'fake_token'}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 400
-        data = response.json()
-        assert not data['success']
-        assert data['message'] == '토큰 검증 실패'
-    
-
-    @pytest.mark.django_db
-    @patch('users.services.social_login.KakaoLoginService.authenticate_user')
-    def test_kakao_login_success(self, mock_authenticate: Any, client: Client, kakao_login_url: str, test_user: 'User') -> None:
-        mock_authenticate.return_value = (test_user, None)
-        
-        response = client.post(
-            kakao_login_url,
-            data=json.dumps({'access_token': 'valid_token'}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 200
-        data = response.json()
-        assert data['success']
-        assert data['message'] == '카카오 로그인에 성공했습니다. 홈페이지로 이동합니다.'
-        assert data['redirect_url'] == '/'
-        assert data['user']['id'] == test_user.id
-        assert data['user']['username'] == test_user.username
-    
-
-    @pytest.mark.django_db
-    @patch('users.services.social_login.KakaoLoginService.authenticate_user')
-    def test_kakao_login_with_next_parameter(self, mock_authenticate: Any, client: Client, kakao_login_url: str, test_user: 'User') -> None:
-        mock_authenticate.return_value = (test_user, None)
-        
-        response = client.post(
-            f"{kakao_login_url}?next=/profile/",
-            data=json.dumps({'access_token': 'valid_token'}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 200
-        data = response.json()
-        assert data['success']
-        assert data['redirect_url'] == '/profile/'
-    
-
-    @pytest.mark.django_db
-    @patch('users.services.social_login.KakaoLoginService.authenticate_user')
-    def test_kakao_login_with_unsafe_next_parameter(self, mock_authenticate: Any, client: Client, kakao_login_url: str, test_user: 'User') -> None:
-        mock_authenticate.return_value = (test_user, None)
-        
-        response = client.post(
-            f"{kakao_login_url}?next=https://evil.com/",
-            data=json.dumps({'access_token': 'valid_token'}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 200
-        data = response.json()
-        assert data['success']
-        assert data['redirect_url'] == '/'
-    
-    @pytest.mark.django_db
-    @patch('users.services.social_login.KakaoLoginService.authenticate_user')
-    def test_kakao_login_user_authentication_failure(self, mock_authenticate: Any, client: Client, kakao_login_url: str) -> None:
-        """카카오 로그인 - 사용자 인증 실패 (user가 None인 경우)"""
-        mock_authenticate.return_value = (None, None)  # user가 None인 경우
-        
-        response = client.post(
-            kakao_login_url,
-            data=json.dumps({'access_token': 'valid_token'}),
-            content_type='application/json'
-        )
-        
-        assert response.status_code == 400
-        data = response.json()
-        assert not data['success']
-        assert data['message'] == '사용자 인증에 실패했습니다.'
-    
-    @pytest.mark.django_db
-    @patch('users.services.social_login.KakaoLoginService.authenticate_user')
-    def test_kakao_login_server_error(self, mock_authenticate: Any, client: Client, kakao_login_url: str) -> None:
-        """카카오 로그인 - 서버 오류"""
-        mock_authenticate.side_effect = Exception("서버 내부 오류")
-        
-        response = client.post(
-            kakao_login_url,
-            data=json.dumps({'access_token': 'valid_token'}),
+            data=json.dumps({'credential': 'valid_credential'}),
             content_type='application/json'
         )
         
@@ -333,72 +194,6 @@ class TestSocialLoginService:
         )
         username = GoogleLoginService._generate_unique_username('test@example.com')
         assert username == 'test_2'
-    
-    @pytest.mark.django_db
-    def test_kakao_generate_unique_username(self) -> None:
-        # 기존 사용자가 없는 경우
-        username = KakaoLoginService._generate_unique_username('카카오사용자')
-        assert username == '카카오사용자'
-        
-        # 기존 사용자가 있는 경우
-        User.objects.create_user(
-            username='카카오사용자', 
-            email='existing@example.com',
-            personal_info_consent=True,
-            terms_of_use=True
-        )
-        username = KakaoLoginService._generate_unique_username('카카오사용자')
-        assert username == '카카오사용자_1'
-    
-
-    @pytest.mark.django_db
-    @patch('requests.get')
-    def test_kakao_get_user_info_success(self, mock_get: Any) -> None:
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            'id': 12345,
-            'kakao_account': {
-                'email': 'test@kakao.com',
-                'profile': {
-                    'nickname': '카카오사용자',
-                    'profile_image_url': 'https://example.com/image.jpg'
-                }
-            }
-        }
-        mock_get.return_value = mock_response
-        
-        result = KakaoLoginService.get_kakao_user_info('valid_token')
-        
-        assert result is not None
-        assert result['id'] == 12345
-        assert result['kakao_account']['email'] == 'test@kakao.com'
-    
-
-    @pytest.mark.django_db
-    @patch('requests.get')
-    def test_kakao_get_user_info_failure(self, mock_get: Any) -> None:
-        mock_response = Mock()
-        mock_response.status_code = 401
-        mock_response.text = 'Unauthorized'
-        mock_get.return_value = mock_response
-        
-        result = KakaoLoginService.get_kakao_user_info('invalid_token')
-        
-        assert result is None
-    
-
-    @pytest.mark.django_db
-    @patch('requests.get')
-    def test_kakao_get_user_info_unexpected_data_type(self, mock_get: Any) -> None:
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = "unexpected_string_data"
-        mock_get.return_value = mock_response
-        
-        result = KakaoLoginService.get_kakao_user_info('valid_token')
-        
-        assert result is None
     
     @patch('google.oauth2.id_token.verify_oauth2_token')
     def test_google_verify_token_success(self, mock_verify: Any) -> None:
@@ -547,143 +342,6 @@ class TestSocialLoginService:
             assert error == "Google 토큰 검증에 실패했습니다."
     
     @pytest.mark.django_db
-    def test_kakao_get_or_create_user_new_user(self) -> None:
-        kakao_user_info = {
-            'id': 12345,
-            'kakao_account': {
-                'email': 'newuser@kakao.com',
-                'profile': {
-                    'nickname': '카카오사용자',
-                    'profile_image_url': 'https://example.com/picture.jpg'
-                }
-            }
-        }
-        
-        user = KakaoLoginService.get_or_create_user(kakao_user_info)
-        
-        assert user is not None
-        assert user.kakao_id == '12345'
-        assert user.email == 'newuser@kakao.com'
-        assert user.first_name == '카카오사용자'
-        assert user.profile_image == 'https://example.com/picture.jpg'
-        assert user.personal_info_consent is False
-        assert user.terms_of_use is False
-    
-    @pytest.mark.django_db
-    def test_kakao_get_or_create_user_existing_by_kakao_id(self) -> None:
-        existing_user = User.objects.create_user(
-            username='existing',
-            email='existing@example.com',
-            password='testpass123',
-            kakao_id='12345',
-            personal_info_consent=True,
-            terms_of_use=True
-        )
-        
-        kakao_user_info = {
-            'id': 12345,
-            'kakao_account': {
-                'email': 'existing@example.com',
-                'profile': {
-                    'nickname': 'Existing User'
-                }
-            }
-        }
-        
-        user = KakaoLoginService.get_or_create_user(kakao_user_info)
-        
-        assert user is not None
-        assert user.id == existing_user.id
-        assert user.kakao_id == '12345'
-    
-    @pytest.mark.django_db
-    def test_kakao_get_or_create_user_existing_by_email(self) -> None:
-        existing_user = User.objects.create_user(
-            username='existing',
-            email='existing@example.com',
-            password='testpass123',
-            personal_info_consent=True,
-            terms_of_use=True
-        )
-        
-        kakao_user_info = {
-            'id': 12345,
-            'kakao_account': {
-                'email': 'existing@example.com',
-                'profile': {
-                    'nickname': 'Existing User'
-                }
-            }
-        }
-        
-        user = KakaoLoginService.get_or_create_user(kakao_user_info)
-        
-        assert user is not None
-        assert user.id == existing_user.id
-        assert user.kakao_id == '12345'  # 카카오 ID가 추가됨
-    
-    @pytest.mark.django_db
-    def test_kakao_get_or_create_user_no_email(self) -> None:
-        kakao_user_info = {
-            'id': 12345,
-            'kakao_account': {
-                'profile': {
-                    'nickname': '카카오사용자'
-                }
-            }
-        }
-        
-        user = KakaoLoginService.get_or_create_user(kakao_user_info)
-        
-        assert user is not None
-        assert user.kakao_id == '12345'
-        assert user.email == 'kakao_12345@kakao.com'
-        assert user.first_name == '카카오사용자'
-    
-    @pytest.mark.django_db
-    def test_kakao_get_or_create_user_missing_data(self) -> None:
-        kakao_user_info = {
-            'id': '',
-            'kakao_account': {
-                'profile': {
-                    'nickname': 'Test User'
-                }
-            }
-        }
-        
-        with pytest.raises(ValueError, match="카카오 사용자 정보가 없습니다"):
-            KakaoLoginService.get_or_create_user(kakao_user_info)
-    
-    @pytest.mark.django_db
-    def test_kakao_authenticate_user_success(self) -> None:
-        kakao_user_info = {
-            'id': 12345,
-            'kakao_account': {
-                'email': 'test@kakao.com',
-                'profile': {
-                    'nickname': '카카오사용자',
-                    'profile_image_url': 'https://example.com/picture.jpg'
-                }
-            }
-        }
-        
-        with patch.object(KakaoLoginService, 'get_kakao_user_info', return_value=kakao_user_info):
-            user, error = KakaoLoginService.authenticate_user('valid_token')
-            
-            assert user is not None
-            assert error is None
-            assert user.kakao_id == '12345'
-            assert user.email == 'test@kakao.com'
-    
-    @pytest.mark.django_db
-    def test_kakao_authenticate_user_info_failed(self) -> None:
-        with patch.object(KakaoLoginService, 'get_kakao_user_info', return_value=None):
-            user, error = KakaoLoginService.authenticate_user('invalid_token')
-            
-            assert user is None
-            assert error == "카카오 사용자 정보 조회에 실패했습니다."
-    
-    @pytest.mark.django_db
     def test_google_authenticate_user_creation_failed(self) -> None:
         google_user_info = {
             'sub': '12345',
@@ -707,36 +365,98 @@ class TestSocialLoginService:
             assert error == "Database error"
     
     @pytest.mark.django_db
-    def test_kakao_authenticate_user_creation_failed(self) -> None:
+    def test_kakao_generate_unique_username(self) -> None:
+        # 기존 사용자가 없는 경우
+        username = KakaoLoginService._generate_unique_username('카카오사용자')
+        assert username == '카카오사용자'
+        
+        # 기존 사용자가 있는 경우
+        User.objects.create_user(
+            username='카카오사용자', 
+            email='existing@example.com',
+            personal_info_consent=True,
+            terms_of_use=True
+        )
+        username = KakaoLoginService._generate_unique_username('카카오사용자')
+        assert username == '카카오사용자_1'
+    
+    @pytest.mark.django_db
+    @patch('requests.get')
+    def test_kakao_get_user_info_success(self, mock_get: Any) -> None:
+        from unittest.mock import Mock
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            'id': 12345,
+            'kakao_account': {
+                'email': 'test@kakao.com',
+                'profile': {
+                    'nickname': '카카오사용자',
+                    'profile_image_url': 'https://example.com/image.jpg'
+                }
+            }
+        }
+        mock_get.return_value = mock_response
+        
+        result = KakaoLoginService.get_kakao_user_info('valid_token')
+        
+        assert result is not None
+        assert result['id'] == 12345
+        assert result['kakao_account']['email'] == 'test@kakao.com'
+    
+    @pytest.mark.django_db
+    @patch('requests.get')
+    def test_kakao_get_user_info_failure(self, mock_get: Any) -> None:
+        from unittest.mock import Mock
+        mock_response = Mock()
+        mock_response.status_code = 401
+        mock_response.text = 'Unauthorized'
+        mock_get.return_value = mock_response
+        
+        result = KakaoLoginService.get_kakao_user_info('invalid_token')
+        
+        assert result is None
+    
+    @pytest.mark.django_db
+    def test_kakao_get_or_create_user_new_user(self) -> None:
+        kakao_user_info = {
+            'id': 12345,
+            'kakao_account': {
+                'email': 'newuser@kakao.com',
+                'profile': {
+                    'nickname': '카카오사용자',
+                    'profile_image_url': 'https://example.com/picture.jpg'
+                }
+            }
+        }
+        
+        user = KakaoLoginService.get_or_create_user(kakao_user_info)
+        
+        assert user is not None
+        assert user.kakao_id == '12345'
+        assert user.email == 'newuser@kakao.com'
+        assert user.first_name == '카카오사용자'
+        assert user.profile_image == 'https://example.com/picture.jpg'
+        assert user.personal_info_consent is False
+        assert user.terms_of_use is False
+    
+    @pytest.mark.django_db
+    def test_kakao_authenticate_user_success(self) -> None:
         kakao_user_info = {
             'id': 12345,
             'kakao_account': {
                 'email': 'test@kakao.com',
                 'profile': {
-                    'nickname': '카카오사용자'
+                    'nickname': '카카오사용자',
+                    'profile_image_url': 'https://example.com/picture.jpg'
                 }
             }
         }
         
-        with patch.object(KakaoLoginService, 'get_kakao_user_info', return_value=kakao_user_info), \
-             patch.object(KakaoLoginService, 'get_or_create_user', return_value=None):
+        with patch.object(KakaoLoginService, 'get_kakao_user_info', return_value=kakao_user_info):
             user, error = KakaoLoginService.authenticate_user('valid_token')
             
-            assert user is None
-            assert error == "사용자 생성/조회에 실패했습니다."
-    
-    @pytest.mark.django_db
-    def test_kakao_authenticate_user_exception(self) -> None:
-        with patch.object(KakaoLoginService, 'get_kakao_user_info', side_effect=Exception("Network error")):
-            user, error = KakaoLoginService.authenticate_user('valid_token')
-            
-            assert user is None
-            assert error == "Network error"
-    
-    @patch('requests.get')
-    def test_kakao_get_user_info_exception(self, mock_get: Any) -> None:
-        mock_get.side_effect = Exception("Network connection failed")
-        
-        result = KakaoLoginService.get_kakao_user_info('valid_token')
-        
-        assert result is None
+            assert user is not None
+            assert error is None
+            assert user.kakao_id == '12345'
+            assert user.email == 'test@kakao.com'

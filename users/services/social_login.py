@@ -1,4 +1,5 @@
 
+import logging
 from typing import Any, Dict, Optional, Tuple, cast
 
 import requests
@@ -8,6 +9,8 @@ from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 
 from users.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class GoogleLoginService:
@@ -39,10 +42,10 @@ class GoogleLoginService:
                 
             return idinfo
         except ValueError as e:
-            print(f"Google token verification error: {e}")
+            logger.error(f"Google token verification error: {e}")
             return None
         except Exception as e:
-            print(f"Google token verification error: {e}")
+            logger.error(f"Google token verification error: {e}")
             return None
     
     @staticmethod
@@ -93,7 +96,7 @@ class GoogleLoginService:
             
             return user
         except Exception as e:
-            print(f"User creation/retrieval error: {e}")
+            logger.error(f"User creation/retrieval error: {e}")
             raise ValueError(f"사용자 생성/조회 중 오류가 발생했습니다: {str(e)}")
     
     @classmethod
@@ -145,14 +148,14 @@ class KakaoLoginService:
                 if isinstance(data, dict):
                     return data
                 else:
-                    print(f"Kakao API returned unexpected data type: {type(data)}")
+                    logger.error(f"Kakao API returned unexpected data type: {type(data)}")
                     return None
             else:
-                print(f"Kakao API error: {response.status_code} - {response.text}")
+                logger.error(f"Kakao API error: {response.status_code} - {response.text}")
                 return None
                 
         except Exception as e:
-            print(f"Kakao user info error: {e}")
+            logger.error(f"Kakao user info error: {e}")
             return None
 
     @staticmethod
@@ -206,7 +209,7 @@ class KakaoLoginService:
             
             return user
         except Exception as e:
-            print(f"User creation/retrieval error: {e}")
+            logger.error(f"User creation/retrieval error: {e}")
             raise ValueError(f"사용자 생성/조회 중 오류가 발생했습니다: {str(e)}")
     
     @classmethod

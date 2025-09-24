@@ -32,7 +32,7 @@ def consent_view(request: HttpRequest) -> HttpResponse:
         
         # 필수 동의 항목 체크
         if not terms_of_use or not personal_info_consent:
-            messages.error(request, '필수 동의 동의 항목에 모두 동의해주세요.')
+            messages.error(request, '필수 동의 항목에 모두 동의해주세요.')
             return render(request, 'users/consent.html', {
                 'user': user
             })
