@@ -31,16 +31,6 @@
                 {% if user.is_authenticated %}
                 <a href="/users/logout/">LOGOUT</a>
                 {% endif %}
-                {% if user.is_authenticated %}
-                <a href="/carts/">CART</a>
-                {% elif not user.is_authenticated %}
-                <a href="{% url "login" %}">CART</a>
-                {% endif %}
-                {% if user.is_authenticated %}
-                <a href="/orders/">ORDER</a>
-                {% elif not user.is_authenticated %}
-                <a href="{% url "login" %}">ORDER</a>
-                {% endif %}                
                 {% if not user.is_authenticated %}
                 <a href="{% url "login" %}">MYPAGE</a>
                 {% elif user.is_authenticated %}
@@ -51,13 +41,9 @@
         <div class="container main-nav">
             <nav class="category-nav">
                 <a href="#">BEST ITEM</a>
-                <a href="#">NEW 5%</a>
-                <a href="#">SALE</a>
-                <a href="#">ONLY YOU</a>
-                <a href="#">FAQ</a>
-                <a href="#">REVIEW</a>
-                <a href="#">Q&A</a>
                 <a href="#">EVENT</a>
+                <a href="#">SALE</a>
+                <a href="#">FAQ</a>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="검색어를 입력하세요" class="search-input">
@@ -73,6 +59,65 @@
                 <button class="mobile-menu-close" id="mobileMenuClose" aria-label="메뉴 닫기">×</button>
             </div>
             <nav class="mobile-category-nav">
+            <!-- 메인 카테고리 -->
+            <nav class="mobile-main-category">
+                <a href="#" data-category="women">WOMEN</a>
+                <a href="#" data-category="men">MEN</a>
+                <a href="#" data-category="accessories">ACCESSORIES</a>
+                <a href="#" data-category="sale">SALE</a>
+            </nav>
+            
+            <!-- 서브 카테고리들 -->
+            <div class="mobile-sub-categories">
+                <div class="sub-category-section" data-parent="women">
+                    <nav class="sub-category-nav">
+                        <a href="#">상의</a>
+                        <a href="#">하의</a>
+                        <a href="#">아우터</a>
+                        <a href="#">원피스</a>
+                        <a href="#">언더웨어</a>
+                        <a href="#">수영복</a>
+                    </nav>
+                </div>
+                
+                <div class="sub-category-section" data-parent="men">
+                    <nav class="sub-category-nav">
+                        <a href="#">상의</a>
+                        <a href="#">하의</a>
+                        <a href="#">아우터</a>
+                        <a href="#">수트</a>
+                        <a href="#">언더웨어</a>
+                        <a href="#">스포츠웨어</a>
+                    </nav>
+                </div>
+                
+                <div class="sub-category-section" data-parent="accessories">
+                    <nav class="sub-category-nav">
+                        <a href="#">신발</a>
+                        <a href="#">가방</a>
+                        <a href="#">모자</a>
+                        <a href="#">벨트</a>
+                        <a href="#">주얼리</a>
+                        <a href="#">시계</a>
+                    </nav>
+                </div>
+                
+                <div class="sub-category-section" data-parent="sale">
+                    <nav class="sub-category-nav">
+                        <a href="#">여성 세일</a>
+                        <a href="#">남성 세일</a>
+                        <a href="#">액세서리 세일</a>
+                        <a href="#">아울렛</a>
+                    </nav>
+                </div>
+            </div>
+            
+            <!-- 마이페이지 메뉴 (로그인 시에만 표시) -->
+           
+            <div class="mobile-search-box">
+                <input type="text" placeholder="검색어를 입력하세요" class="mobile-search-input">
+                <button class="mobile-search-btn" aria-label="검색"></button>
+            </div>
             <nav class="mobile-user-nav">
                 {% if user.is_authenticated and user.role == 'admin' %}
                 <a href="{% url 'product-list' %}">ADMIN</a>
@@ -82,16 +127,6 @@
                 {% endif %}
                 {% if user.is_authenticated %}
                 <a href={% url "logout" %}>LOGOUT</a>
-                {% endif %}
-                {% if user.is_authenticated %}
-                <a href="/carts/">CART</a>
-                {% elif not user.is_authenticated %}
-                <a href="{% url "login" %}">CART</a>
-                {% endif %}
-                {% if user.is_authenticated %}
-                <a href="/orders/">ORDER</a>
-                {% elif not user.is_authenticated %}
-                <a href="{% url "login" %}">ORDER</a>
                 {% endif %}                
                 {% if not user.is_authenticated %}
                 <a href="{% url "login" %}">MYPAGE</a>
@@ -99,20 +134,6 @@
                 <a href={% url "order_mypage" %}>MYPAGE</a>
                 {% endif %}
             </nav>
-            <nav class="mobile-category-nav">
-                <a href="#">BEST ITEM</a>
-                <a href="#">NEW 5%</a>
-                <a href="#">SALE</a>
-                <a href="#">ONLY YOU</a>
-                <a href="#">FAQ</a>
-                <a href="#">REVIEW</a>
-                <a href="#">Q&A</a>
-                <a href="#">EVENT</a>
-            </nav>
-            <div class="mobile-search-box">
-                <input type="text" placeholder="검색어를 입력하세요" class="mobile-search-input">
-                <button class="mobile-search-btn" aria-label="검색"></button>
-            </div>
         </div>
     </header>
 
