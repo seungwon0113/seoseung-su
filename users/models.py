@@ -14,10 +14,16 @@ class User(AbstractUser, BaseModel):
         CONSUMER = 'consumer', '소비자'
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.CONSUMER)
     gender = models.CharField(max_length=10, choices=Gender.choices, default=None, null=True)
-    phone_number = models.CharField(max_length=13, unique=True)
+    phone_number = models.CharField(max_length=13, unique=True, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     email = models.EmailField(unique=True)
-    personal_info_consent = models.BooleanField()
+    google_id = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name="Google ID")
+    kakao_id = models.CharField(max_length=100, unique=True, null=True, blank=True, verbose_name="Kakao ID")
+    profile_image = models.URLField(max_length=500, null=True, blank=True, verbose_name="프로필 이미지")
+    personal_info_consent = models.BooleanField(verbose_name="개인정보수집")
+    terms_of_use = models.BooleanField(verbose_name="이용약관")
+    sns_consent_to_receive = models.BooleanField(null=True, blank=True, default=False, verbose_name="sns수신")
+    email_consent_to_receive = models.BooleanField(null=True, blank=True, default=False, verbose_name="email수신")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

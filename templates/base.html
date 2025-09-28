@@ -1,0 +1,152 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SeoSeung-Soo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block style %}
+    {% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-bar">
+            <div class="left-actions">
+                <button class="menu-toggle" aria-label="Toggle menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+            <a href="/" class="logo">SeoSeung-Soo</a>
+            <nav class="top-nav">
+                {% if user.is_authenticated and user.role == 'admin' %}
+                <a href="{% url 'product-list' %}">ADMIN</a>
+                {% endif %}
+                {% if not user.is_authenticated %}
+                <a href="{% url "login" %}">LOGIN</a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <a href="/users/logout/">LOGOUT</a>
+                {% endif %}
+                {% if not user.is_authenticated %}
+                <a href="{% url "login" %}">MYPAGE</a>
+                {% elif user.is_authenticated %}
+                <a href="/users/mypage/">MYPAGE</a>
+                {% endif %}
+            </nav>
+        </div>
+        <div class="container main-nav">
+            <nav class="category-nav">
+                <a href="#">BEST ITEM</a>
+                <a href="#">EVENT</a>
+                <a href="#">SALE</a>
+                <a href="#">FAQ</a>
+            </nav>
+            <div class="search-box">
+                <input type="text" placeholder="검색어를 입력하세요" class="search-input">
+                <button class="search-btn" aria-label="검색"></button>
+            </div>
+        </div>
+        
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+        
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <h3>메뉴</h3>
+                <button class="mobile-menu-close" id="mobileMenuClose" aria-label="메뉴 닫기">×</button>
+            </div>
+            <nav class="mobile-main-category">
+                <a href="#" data-category="women">WOMEN</a>
+                <a href="#" data-category="men">MEN</a>
+                <a href="#" data-category="accessories">ACCESSORIES</a>
+                <a href="#" data-category="sale">SALE</a>
+            </nav>
+            
+            <div class="mobile-sub-categories">
+                <div class="sub-category-section" data-parent="women">
+                    <nav class="sub-category-nav">
+                        <a href="#">상의</a>
+                        <a href="#">하의</a>
+                        <a href="#">아우터</a>
+                        <a href="#">원피스</a>
+                        <a href="#">언더웨어</a>
+                        <a href="#">수영복</a>
+                    </nav>
+                </div>
+                
+                <div class="sub-category-section" data-parent="men">
+                    <nav class="sub-category-nav">
+                        <a href="#">상의</a>
+                        <a href="#">하의</a>
+                        <a href="#">아우터</a>
+                        <a href="#">수트</a>
+                        <a href="#">언더웨어</a>
+                        <a href="#">스포츠웨어</a>
+                    </nav>
+                </div>
+                
+                <div class="sub-category-section" data-parent="accessories">
+                    <nav class="sub-category-nav">
+                        <a href="#">신발</a>
+                        <a href="#">가방</a>
+                        <a href="#">모자</a>
+                        <a href="#">벨트</a>
+                        <a href="#">주얼리</a>
+                        <a href="#">시계</a>
+                    </nav>
+                </div>
+                
+                <div class="sub-category-section" data-parent="sale">
+                    <nav class="sub-category-nav">
+                        <a href="#">여성 세일</a>
+                        <a href="#">남성 세일</a>
+                        <a href="#">액세서리 세일</a>
+                        <a href="#">아울렛</a>
+                    </nav>
+                </div>
+            </div>
+            
+           
+            <div class="mobile-search-box">
+                <input type="text" placeholder="검색어를 입력하세요" class="mobile-search-input">
+                <button class="mobile-search-btn" aria-label="검색"></button>
+            </div>
+            <nav class="mobile-user-nav">
+                {% if user.is_authenticated and user.role == 'admin' %}
+                <a href="{% url 'product-list' %}">ADMIN</a>
+                {% endif %}
+                {% if not user.is_authenticated %}
+                <a href="{% url "login" %}">LOGIN</a>
+                {% endif %}
+                {% if user.is_authenticated %}
+                <a href={% url "logout" %}>LOGOUT</a>
+                {% endif %}                
+                {% if not user.is_authenticated %}
+                <a href="{% url "login" %}">MYPAGE</a>
+                {% elif user.is_authenticated %}
+                <a href={% url "order_mypage" %}>MYPAGE</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>© SeoSeung-Soo. All rights reserved.</p>
+            <p style="text-align: right">대표 : 정수지</p>
+
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

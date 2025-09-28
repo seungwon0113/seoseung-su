@@ -19,7 +19,7 @@ class TestLoginView:
         assert 'users/login.html' in [t.name for t in response.templates]
 
     def test_login_get_redirect_authenticated(self) -> None:
-        User.objects.create_user(username='test', email='test@test.com', password='testtest', phone_number='00000000000', personal_info_consent=True)
+        User.objects.create_user(username='test', email='test@test.com', password='testtest', phone_number='00000000000', personal_info_consent=True, terms_of_use=True)
         self.client.login(email='test@test.com', password='testtest')
         response = self.client.get('/users/login/')
         assert response.status_code == 302
@@ -27,7 +27,7 @@ class TestLoginView:
         assert len(response.templates) == 0
 
     def test_login_post_with_valid_form_redirects(self) -> None:
-        User.objects.create_user(username='test', email='test@test.com', password='testtest', phone_number='00000000000', personal_info_consent=True)
+        User.objects.create_user(username='test', email='test@test.com', password='testtest', phone_number='00000000000', personal_info_consent=True, terms_of_use=True)
         response = self.client.post("/users/login/", {
             "email": "test@test.com",
             "password": "testtest",
@@ -37,7 +37,7 @@ class TestLoginView:
 
     def test_login_post_with_invalid_form_shows_errors(self) -> None:
         """유효하지 않은 폼 데이터로 POST 요청시 에러 표시 테스트"""
-        User.objects.create_user(username='test', email='test@test.com', password='testtest', phone_number='00000000000', personal_info_consent=True)
+        User.objects.create_user(username='test', email='test@test.com', password='testtest', phone_number='00000000000', personal_info_consent=True, terms_of_use=True)
         response = self.client.post("/users/login/", {
             "email": "test@test.com",
             "password": "wrongpass",

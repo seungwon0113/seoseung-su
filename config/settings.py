@@ -47,6 +47,7 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "users.apps.UsersConfig",
+    "products.apps.ProductsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
@@ -54,11 +55,13 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'users.utils.middleware.ConsentRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -98,6 +101,9 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "users.User"
+
+# Login/Logout URLs
+LOGIN_URL = "/users/login/"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -146,3 +152,43 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SESSION_EXPIRE_SECONDS = 3600  # 1 hour
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+
+# Google OAuth 설정
+GOOGLE_OAUTH2_CLIENT_ID = env('GOOGLE_OAUTH2_CLIENT_ID')
+GOOGLE_OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
+
+# 카카오 로그인 설정
+KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY', default='')
+KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='')
+KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/users/auth/kakao/callback/')
+
+# 허용된 호스트에 localhost 추가 (개발용)
+if DEBUG:
+    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
+
+# CORS 설정 (Google GSI용)
+CORS_ALLOWED_ORIGINS = [
+    "https://accounts.google.com",
+    "https://www.google.com",
+]
+
+# 개발 서버용 추가 설정
+if DEBUG:
+    CORS_ALLOW_CREDENTIALS = True
+    CORS_ALLOW_ALL_ORIGINS = True
+
+# CSP 설정 (Google GSI용)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://accounts.google.com")
+CSP_FRAME_SRC = ("'self'", "https://accounts.google.com")
+CSP_CONNECT_SRC = ("'self'", "https://accounts.google.com")
+
+# 개발 서버용 보안 헤더 설정 (Google OAuth용)
+if DEBUG:
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+    SECURE_REFERRER_POLICY = None
+    # Google OAuth를 위한 추가 설정
+    SECURE_BROWSER_XSS_FILTER = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
