@@ -9,7 +9,7 @@ from django.views.generic.base import View
 
 from users.models import User
 
-
+# TODO : 데이터 연동 후 데이터 수정
 @method_decorator(login_required, name='dispatch')
 class MyPageView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -39,6 +39,7 @@ class MyPageView(View):
         
         return render(request, "orders/order_mypage.html", context)
     
+# TODO : 데이터 연동 후 데이터 수정
 @method_decorator(login_required, name='dispatch')
 class ProfileEditView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
