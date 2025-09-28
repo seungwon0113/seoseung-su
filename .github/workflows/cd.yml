@@ -1,15 +1,17 @@
-name: deploy.yml
+name: deploy
+
 on:
-  pull_request:
+  push:
     branches:
       - "main"
 
 jobs:
   deploy:
     runs-on: ubuntu-20.04
+
     steps:
       - name: Checkout repository
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Deploy to Oracle Cloud
         uses: appleboy/ssh-action@master
