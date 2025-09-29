@@ -32,9 +32,10 @@ class ProductCreateView(AdminPermission, View):
             
             # 이미지 처리 (이미지가 있는 경우에만)
             images = request.FILES.getlist('image')
-            for image in images:
-                product_image = ProductImage.objects.create(image=image)
-                product.image.add(product_image)
+            if images:
+                for image in images:
+                    product_image = ProductImage.objects.create(image=image)
+                    product.image.add(product_image)
             
             return redirect('product-list')
         
@@ -69,9 +70,10 @@ class ProductUpdateView(AdminPermission, View):
             
             # 새 이미지 추가 (이미지가 있는 경우에만)
             images = request.FILES.getlist('image')
-            for image in images:
-                product_image = ProductImage.objects.create(image=image)
-                product.image.add(product_image)
+            if images:
+                for image in images:
+                    product_image = ProductImage.objects.create(image=image)
+                    product.image.add(product_image)
             
             return redirect('product-list')
         

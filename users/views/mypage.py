@@ -9,6 +9,7 @@ from django.views.generic.base import View
 
 from users.models import User
 
+
 # TODO : 데이터 연동 후 데이터 수정
 @method_decorator(login_required, name='dispatch')
 class MyPageView(View):
