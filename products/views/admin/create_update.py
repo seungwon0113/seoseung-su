@@ -1,5 +1,7 @@
+import os
 from typing import cast
 
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
@@ -8,6 +10,14 @@ from products.forms.product_form import ProductForm, ProductImageForm
 from products.models import Product, ProductImage
 from users.models import User
 from users.utils.permission import AdminPermission
+
+
+def ensure_media_directory() -> None:
+    media_root = getattr(settings, 'MEDIA_ROOT', None)
+    if media_root:
+        # products/images 디렉토리 생성
+        products_images_dir = os.path.join(media_root, 'products', 'images')
+        os.makedirs(products_images_dir, mode=0o755, exist_ok=True)
 
 
 class ProductCreateView(AdminPermission, View):
@@ -32,9 +42,13 @@ class ProductCreateView(AdminPermission, View):
             
             # 이미지 처리 (이미지가 있는 경우에만)
             images = request.FILES.getlist('image')
-            for image in images:
-                product_image = ProductImage.objects.create(image=image)
-                product.image.add(product_image)
+            if images:
+                # media 디렉토리 확인 및 생성
+                ensure_media_directory()
+                
+                for image in images:
+                    product_image = ProductImage.objects.create(image=image)
+                    product.image.add(product_image)
             
             return redirect('product-list')
         
@@ -69,9 +83,13 @@ class ProductUpdateView(AdminPermission, View):
             
             # 새 이미지 추가 (이미지가 있는 경우에만)
             images = request.FILES.getlist('image')
-            for image in images:
-                product_image = ProductImage.objects.create(image=image)
-                product.image.add(product_image)
+            if images:
+                # media 디렉토리 확인 및 생성
+                ensure_media_directory()
+                
+                for image in images:
+                    product_image = ProductImage.objects.create(image=image)
+                    product.image.add(product_image)
             
             return redirect('product-list')
         

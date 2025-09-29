@@ -1,20 +1,38 @@
 services:
-# TODO: 이메일 인증 celery 추가 시에 같이 작성 예정
-#  web:
-#    container_name: django
-#    env_file:
-#      - .env
-#    ports:
-#      - "8000:8000"
-#    networks:
-#      - ss_networks
-#    depends_on:
-#      db:
-#        condition: service_healthy
+  web:
+    container_name: django
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    user: root
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      /bin/sh -c "
+        uv run manage.py collectstatic --noinput &&
+        uv run manage.py migrate &&
+        uv run gunicorn --bind 0.0.0.0:8000 config.wsgi:application
+      "
+    healthcheck:
+      test: ["CMD", "/app/.venv/bin/python", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 8000)); s.close()"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - ss_networks
 
   db:
     container_name: postgres
-    image: postgres
+    image: postgres:15
     env_file:
       - .env
     ports:
@@ -22,17 +40,35 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "pg_isready -U $$POSTGRES_USER -D $$POSTGRES_DB" ]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - ss_networks
 
-# TODO: 컨테이너 추가시
-#networks:
-#  - ss_networks:
-#      driver: bridge
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/static
+      - media_volume:/app/media
+    networks:
+      - ss_networks
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   static_volume:
   media_volume:
+
+networks:
+  ss_networks:
+    driver: bridge

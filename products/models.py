@@ -1,12 +1,22 @@
 
+import os
+import uuid
+
 from django.db import models
 
 from config.basemodel import BaseModel
 from users.models import User
 
 
+def product_image_upload_path(instance: 'ProductImage', filename: str) -> str:
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return os.path.join('products', 'images', filename)
+
+
 class ProductImage(BaseModel):
-    image = models.ImageField()
+    image = models.ImageField(upload_to=product_image_upload_path)
+    
     class Meta:
         db_table = 'products_image'
 
