@@ -38,6 +38,4 @@ COPY --from=builder --chown=app:app /app/.venv /app/.venv
 
 COPY --chown=app:app . /app
 
-RUN chown -R app:app /app/staticfiles
-
 USER app
