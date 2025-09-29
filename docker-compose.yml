@@ -9,14 +9,13 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./static:/app/static
-      - ./media:/app/media
+      - static_volume:/app/static
+      - media_volume:/app/media
     depends_on:
       db:
         condition: service_healthy
     command: >
       /bin/sh -c "
-        chmod -R 755 /app/media &&
         uv run manage.py collectstatic --noinput &&
         uv run manage.py migrate &&
         uv run gunicorn --bind 0.0.0.0:8000 config.wsgi:application
@@ -55,7 +54,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
-      -  ./static:/app/static
+      - ./static:/app/static
       - ./media:/app/media
     networks:
       - ss_networks
@@ -66,7 +65,8 @@ services:
 
 volumes:
   postgres_data:
-
+  static_volume:
+  media_volume:
 networks:
   ss_networks:
     driver: bridge

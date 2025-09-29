@@ -197,7 +197,4 @@ pyrightconfig.json
 
 .idea/
 
-# static, media
-staticfiles
-
 .git
