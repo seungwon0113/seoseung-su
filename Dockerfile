@@ -23,7 +23,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Runtime stage
 FROM python:3.13-slim
 
-
 RUN useradd -m app
 
 RUN mkdir -p /app && chown -R app:app /app
