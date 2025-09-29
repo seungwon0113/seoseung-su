@@ -46,6 +46,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "corsheaders",
     "users.apps.UsersConfig",
     "products.apps.ProductsConfig",
 ]
@@ -53,6 +54,7 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django_session_timeout.middleware.SessionTimeoutMiddleware',
@@ -167,26 +169,61 @@ KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/us
 if DEBUG:
     ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
 
-# CORS 설정 (Google GSI용)
-CORS_ALLOWED_ORIGINS = [
-    "https://accounts.google.com",
-    "https://www.google.com",
-]
+# CORS 설정
+CORS_ALLOW_CREDENTIALS = True
 
-# 개발 서버용 추가 설정
-if DEBUG:
-    CORS_ALLOW_CREDENTIALS = True
+# 배포 환경 CORS 설정
+if not DEBUG:
+    CORS_ALLOWED_ORIGINS = [
+        "https://seoseung-soo.com",
+        "https://www.seoseung-soo.com",
+        "https://accounts.google.com",
+        "https://www.google.com",
+    ]
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^https://.*\.google\.com$",
+        r"^https://.*\.googleapis\.com$",
+    ]
+else:
+    # 개발 환경에서는 모든 origin 허용
     CORS_ALLOW_ALL_ORIGINS = True
+
+# Google OAuth를 위한 추가 CORS 헤더
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-goog-authuser',
+    'x-goog-pageid',
+]
 
 # CSP 설정 (Google GSI용)
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://accounts.google.com")
 CSP_FRAME_SRC = ("'self'", "https://accounts.google.com")
 CSP_CONNECT_SRC = ("'self'", "https://accounts.google.com")
 
-# 개발 서버용 보안 헤더 설정 (Google OAuth용)
-if DEBUG:
-    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-    SECURE_REFERRER_POLICY = None
-    # Google OAuth를 위한 추가 설정
+# 보안 헤더 설정
+if not DEBUG:
+    # 배포 환경 보안 설정
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    # 개발 환경에서는 보안 설정 완화
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = None  # type: ignore[assignment]
+    SECURE_REFERRER_POLICY = None  # type: ignore[assignment]
     SECURE_BROWSER_XSS_FILTER = False
     SECURE_CONTENT_TYPE_NOSNIFF = False
