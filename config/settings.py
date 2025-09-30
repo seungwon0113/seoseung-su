@@ -203,22 +203,38 @@ CORS_ALLOW_HEADERS = [
     'x-goog-pageid',
 ]
 
-# CSP 설정 (Google GSI용)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://accounts.google.com")
-CSP_FRAME_SRC = ("'self'", "https://accounts.google.com")
-CSP_CONNECT_SRC = ("'self'", "https://accounts.google.com")
+# CSP 설정 (Google GSI 및 Kakao용)
+CSP_SCRIPT_SRC = (
+    "'self'", 
+    "'unsafe-inline'", 
+    "https://accounts.google.com",
+    "https://developers.kakao.com",
+    "https://t1.kakaocdn.net"
+)
+CSP_FRAME_SRC = (
+    "'self'", 
+    "https://accounts.google.com",
+    "https://kauth.kakao.com"
+)
+CSP_CONNECT_SRC = (
+    "'self'", 
+    "https://accounts.google.com",
+    "https://kauth.kakao.com",
+    "https://kapi.kakao.com"
+)
 
 # 보안 헤더 설정
 if not DEBUG:
-    # 배포 환경 보안 설정
+    # 배포 환경 보안 설정 (Google OAuth 호환)
     SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # SSL 설정은 nginx에서 처리하므로 Django에서는 비활성화
+    # SECURE_SSL_REDIRECT = True
+    # SECURE_HSTS_SECONDS = 31536000
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 else:
