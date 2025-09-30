@@ -1,14 +1,7 @@
-from typing import TYPE_CHECKING
-
 import pytest
-from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
 
-if TYPE_CHECKING:
-    from users.models import User
-
-User = get_user_model()  # type: ignore
 
 @pytest.fixture
 def client() -> Client:
@@ -17,107 +10,38 @@ def client() -> Client:
 
 @pytest.fixture
 def consent_url() -> str:
-    return reverse('consent')
+    return reverse('personal_info_consent')
 
 
-@pytest.fixture
-def test_user_with_consent() -> 'User':
-    return User.objects.create_user(
-        username='testuser',
-        email='test@example.com',
-        password='testpass123',
-        personal_info_consent=True,
-        terms_of_use=True
-    )
-
-
-@pytest.fixture
-def test_user_without_consent() -> 'User':
-    return User.objects.create_user(
-        username='testuser2',
-        email='test2@example.com',
-        password='testpass123',
-        personal_info_consent=False,
-        terms_of_use=False
-    )
-
-
-class TestConsentView:
+class TestPersonalInfoConsentView:
+    """
+    PersonalInfoConsent 뷰는 단순히 약관 내용을 보여주는 정적 페이지입니다.
+    로그인 여부와 관계없이 누구나 접근할 수 있습니다.
+    """
     
-    def test_consent_view_anonymous_redirect(self, client: Client, consent_url: str) -> None:
-        response = client.get(consent_url)
-        
-        assert response.status_code == 302
-        assert '/users/login/' in response['Location']
-    
-    @pytest.mark.django_db
-    def test_consent_view_already_consented_redirect(self, client: Client, consent_url: str, test_user_with_consent: 'User') -> None:
-        client.force_login(test_user_with_consent)
-        
-        response = client.get(consent_url)
-        
-        assert response.status_code == 302
-        assert response['Location'] == '/'
-    
-    @pytest.mark.django_db
-    def test_consent_view_get_renders_template(self, client: Client, consent_url: str, test_user_without_consent: 'User') -> None:
-        client.force_login(test_user_without_consent)
-        
+    def test_personal_info_consent_view_get_anonymous(self, client: Client, consent_url: str) -> None:
+        """익명 사용자도 약관 페이지에 접근할 수 있어야 합니다."""
         response = client.get(consent_url)
         
         assert response.status_code == 200
-        assert 'users/consent.html' in [t.name for t in response.templates]
+        assert 'users/personal_info_consent.html' in [t.name for t in response.templates]
     
-    @pytest.mark.django_db
-    def test_consent_view_post_missing_required_consent(self, client: Client, consent_url: str, test_user_without_consent: 'User') -> None:
-        client.force_login(test_user_without_consent)
-        
-        response = client.post(consent_url, {
-            'terms_of_use': '',
-            'personal_info_consent': 'on',
-            'sns_consent_to_receive': 'on',
-            'email_consent_to_receive': 'on'
-        })
+    def test_personal_info_consent_view_contains_terms_content(self, client: Client, consent_url: str) -> None:
+        """약관 페이지에 필수 약관 내용이 포함되어 있어야 합니다."""
+        response = client.get(consent_url)
         
         assert response.status_code == 200
-        messages = list(response.context['messages'])
-        assert len(messages) > 0
-        assert '필수 동의 항목에 모두 동의해주세요.' in str(messages[0])
-    
-    @pytest.mark.django_db
-    def test_consent_view_post_success(self, client: Client, consent_url: str, test_user_without_consent: 'User') -> None:
-        client.force_login(test_user_without_consent)
+        content = response.content.decode('utf-8')
         
-        response = client.post(consent_url, {
-            'terms_of_use': 'on',
-            'personal_info_consent': 'on',
-            'sns_consent_to_receive': 'on',
-            'email_consent_to_receive': 'on'
-        })
-        
-        assert response.status_code == 302
-        assert response['Location'] == '/'
-        
-        test_user_without_consent.refresh_from_db()
-        assert test_user_without_consent.terms_of_use is True
-        assert test_user_without_consent.personal_info_consent is True
-        assert test_user_without_consent.sns_consent_to_receive is True
-        assert test_user_without_consent.email_consent_to_receive is True
-    
-    @pytest.mark.django_db
-    def test_consent_view_post_partial_consent(self, client: Client, consent_url: str, test_user_without_consent: 'User') -> None:
-        client.force_login(test_user_without_consent)
-        
-        response = client.post(consent_url, {
-            'terms_of_use': 'on',
-            'personal_info_consent': 'on',
-        })
-        
-        assert response.status_code == 302
-        assert response['Location'] == '/'
-        
-        test_user_without_consent.refresh_from_db()
-        assert test_user_without_consent.terms_of_use is True
-        assert test_user_without_consent.personal_info_consent is True
-        assert test_user_without_consent.sns_consent_to_receive is False
-        assert test_user_without_consent.email_consent_to_receive is False
+        # 주요 약관 내용이 포함되어 있는지 확인
+        assert '쇼핑몰 개인정보 처리방침' in content
+        assert '제1조(목적)' in content
+        assert '제17조(개인정보보호)' in content
+        assert '카카오톡 알림톡 시행에 관한 내용' in content
+        assert '제 N 조(포인트 및 쿠폰)' in content
+
+    def test_personal_info_consent_view_post_not_allowed(self, client: Client, consent_url: str) -> None:
+        response = client.post(consent_url, {})
+
+        # POST 메서드는 허용되지 않으므로 405 Method Not Allowed 응답
+        assert response.status_code == 405
