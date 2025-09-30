@@ -66,10 +66,6 @@ class KakaoCallbackView(View):
                 # 사용자 로그인
                 login(request, user)
                 
-                # 필수 동의 항목 체크
-                if not user.terms_of_use or not user.personal_info_consent:
-                    return redirect('/users/consent/')
-                
                 # 안전한 리다이렉트 URL 결정
                 next_url = request.GET.get('next', '/')
                 if not url_has_allowed_host_and_scheme(
