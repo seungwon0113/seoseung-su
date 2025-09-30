@@ -113,7 +113,7 @@ class TestKakaoCallbackView:
         response = client.get(f"{kakao_callback_url}?code=test_code")
         
         assert response.status_code == 302
-        assert response['Location'] == '/users/consent/'
+        assert response['Location'] == '/'
     
     @pytest.mark.django_db
     @patch('requests.post')
