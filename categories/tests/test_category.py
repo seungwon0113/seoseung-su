@@ -11,7 +11,7 @@ class TestCategories:
         self.client = Client()
         # 비밀번호를 제대로 해시하여 사용자 생성
         self.admin_user = User.objects.create_user(
-            role="admin", 
+            role="admin",  # admin으로 수정
             email="admin@admin.com", 
             password="create_test_admin", 
             username="create_test_user", 
@@ -20,18 +20,15 @@ class TestCategories:
         )
 
     def test_create_category(self) -> None:
-        user = User.objects.get(username="create_test_user")
-        
+        user = self.admin_user
+        assert user.role == "admin"
         if user.role == "admin":
-            # 최상위 카테고리 생성 (parent=None)
             category = Category.objects.create(name="대분류카테고리", parent=None)
             
-            # 생성 검증
             assert category.id is not None
             assert category.name == "대분류카테고리"
             assert category.parent is None
             
-            # DB에서 실제로 조회되는지 확인
             saved_category = Category.objects.get(name="대분류카테고리")
             assert saved_category.name == "대분류카테고리"
 
