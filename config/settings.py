@@ -31,7 +31,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS: list[str]= ["143.47.104.74", "seoseung-soo.com"]
+ALLOWED_HOSTS: list[str]= ["143.47.104.74", "seoseung-soo.com", "www.seoseung-soo.com"]
 
 
 # Application definition
@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "users.apps.UsersConfig",
     "products.apps.ProductsConfig",
+    "categories.apps.CategoriesConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
@@ -67,7 +68,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 TEMPLATES = [
     {
@@ -236,6 +237,11 @@ if not DEBUG:
     # SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # CSRF 설정 추가
+    CSRF_TRUSTED_ORIGINS = [
+        "https://seoseung-soo.com",
+        "https://www.seoseung-soo.com"
+    ]
 else:
     # 개발 환경에서는 보안 설정 완화
     SECURE_CROSS_ORIGIN_OPENER_POLICY = None  # type: ignore[assignment]

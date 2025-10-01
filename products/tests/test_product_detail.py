@@ -10,10 +10,18 @@ from users.models import User
 class TestProductDetail:
     def setup_method(self) -> None:
         self.client = Client()
-        User.objects.create(role="admin", email="admin@admin.com", password="create_test_admin", username="create_test_user", personal_info_consent=True, terms_of_use=True)
+        self.admin_user = User.objects.create_user(
+            role="admin",
+            email="admin@admin.com",
+            password="create_test_admin",
+            username="create_test_user",
+            personal_info_consent=True,
+            terms_of_use=True
+        )
 
     def test_product_detail_get(self) -> None:
-        Product.objects.create(user_id=1, name="test_product", description="test_product", is_live=True, is_sold=False, stock=10, price=10000)
+        user = User.objects.get(username="create_test_user")
+        Product.objects.create(user_id=user.pk, name="test_product", description="test_product", is_live=True, is_sold=False, stock=10, price=10000)
         url = reverse('products-detail', kwargs={'product_name': "test_product"})
         response = self.client.get(url)
         assert response.status_code == 200
