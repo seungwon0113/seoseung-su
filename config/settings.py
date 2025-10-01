@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "users.apps.UsersConfig",
     "products.apps.ProductsConfig",
+    "categories.apps.CategoriesConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
