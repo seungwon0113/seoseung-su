@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/category/list_category.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="category-container">
+    <div class="category-header">
+        <h1 class="category-title">카테고리 목록</h1>
+    </div>
+    
+    {% for main_category in main_categories %}
+    <div class="main-category-section">
+        <h2 class="main-category-title">{{ main_category.name }} (대분류)</h2>
+        <ul class="subcategory-list">
+            {% for subcat in main_category.children.all %}
+                <li class="subcategory-item">{{ subcat.name }}</li>
+            {% empty %}
+                <li class="no-categories">소분류 카테고리가 없습니다.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% empty %}
+    <div class="no-categories">
+        <p>등록된 대분류 카테고리가 없습니다.</p>
+    </div>
+    {% endfor %}
+    
+    {% if form %}
+    <div class="category-form">
+        <h3>새 카테고리 추가</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">카테고리 추가</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
