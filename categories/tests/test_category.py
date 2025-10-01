@@ -33,7 +33,7 @@ class TestCategories:
             assert saved_category.name == "대분류카테고리"
 
     def test_create_parent_category(self) -> None:
-        user = User.objects.get(username="create_test_user")
+        user = self.admin_user
         if user.role == "admin":
             category = Category.objects.create(name="대분류카테고리", parent=None)
             parent_category = Category.objects.create(name="소분류카테고리", parent=category)
