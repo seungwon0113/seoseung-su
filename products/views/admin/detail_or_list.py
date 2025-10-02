@@ -13,4 +13,4 @@ class ProductListView(AdminPermission, View):
             'products': products,
             'title': '상품 목록'
         }
-        return render(request, 'products/admin/product_create.html', context)
+        return render(request, 'products/admin/product_list.html', context)
