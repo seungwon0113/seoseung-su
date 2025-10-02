@@ -1,5 +1,7 @@
-from typing import Dict, Any
+from typing import Any, Dict
+
 from django.http import HttpRequest
+
 from categories.models import Category
 
 
