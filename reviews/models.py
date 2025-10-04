@@ -22,7 +22,7 @@ class Review(BaseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     content = models.TextField(max_length=1000)
     rating = models.PositiveIntegerField(default=5)
-    images = models.ForeignKey(ReviewImage, blank=True, on_delete=models.CASCADE, related_name='reviews_images')
+    images = models.ForeignKey(ReviewImage, blank=True, on_delete=models.CASCADE, related_name='reviews_images', null=True)
     is_published = models.BooleanField(default=True)
     
     class Meta:
