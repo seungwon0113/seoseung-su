@@ -1,18 +1,13 @@
-
-import os
-import uuid
-
 from django.db import models
 
 from categories.models import Category
 from config.basemodel import BaseModel
+from config.utils.image_path import image_upload_path
 from users.models import User
 
 
 def product_image_upload_path(instance: 'ProductImage', filename: str) -> str:
-    ext = filename.split('.')[-1]
-    filename = f"{uuid.uuid4()}.{ext}"
-    return os.path.join('products', 'images', filename)
+    return image_upload_path('products', filename)
 
 
 class ProductImage(BaseModel):
