@@ -4,6 +4,7 @@ import uuid
 
 from django.db import models
 
+from categories.models import Category
 from config.basemodel import BaseModel
 from users.models import User
 
@@ -31,6 +32,7 @@ class Product(BaseModel):
     stock = models.IntegerField()
     is_live = models.BooleanField(default=False)
     is_sold = models.BooleanField(default=False)
+    categories = models.ManyToManyField(Category, blank=True, db_table='product_category_cdt')
     class Meta:
         db_table = 'products'
 
