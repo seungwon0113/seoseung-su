@@ -29,7 +29,7 @@ class ProductsDetailView(View):
         # 사용자가 이미 리뷰를 작성했는지 확인
         user_review = None
         if request.user.is_authenticated:
-            user_review = reviews.filter(user=request.user).first()
+            user_review = next((review for review in reviews if review.user == request.user), None)
         
         # 리뷰 작성 폼
         review_form = ReviewForm()

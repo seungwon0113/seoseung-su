@@ -17,6 +17,7 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -212,19 +213,19 @@ CORS_ALLOW_HEADERS = [
 
 # CSP 설정 (Google GSI 및 Kakao용)
 CSP_SCRIPT_SRC = (
-    "'self'", 
-    "'unsafe-inline'", 
+    "'self'",
+    "'unsafe-inline'",
     "https://accounts.google.com",
     "https://developers.kakao.com",
     "https://t1.kakaocdn.net"
 )
 CSP_FRAME_SRC = (
-    "'self'", 
+    "'self'",
     "https://accounts.google.com",
     "https://kauth.kakao.com"
 )
 CSP_CONNECT_SRC = (
-    "'self'", 
+    "'self'",
     "https://accounts.google.com",
     "https://kauth.kakao.com",
     "https://kapi.kakao.com"
@@ -250,6 +251,7 @@ else:
     SECURE_REFERRER_POLICY = None  # type: ignore[assignment]
     SECURE_BROWSER_XSS_FILTER = False
     SECURE_CONTENT_TYPE_NOSNIFF = False
+
 
 if DEBUG:
     from config.logging import LOGGING

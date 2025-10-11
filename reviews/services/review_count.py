@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from django.db.models import Avg, Count
 
@@ -8,7 +8,7 @@ from reviews.models import Review
 
 class ReviewCountService:
     @staticmethod
-    def get_product_review_stats(product: Product) -> Dict[str, int]:
+    def get_product_review_stats(product: Product) -> Dict[str, Union[float, int]]:
         reviews = Review.objects.filter(product=product)
         
         stats = reviews.aggregate(
