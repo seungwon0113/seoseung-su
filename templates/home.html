@@ -24,9 +24,15 @@
       <article class="product-card">
         <a href="{% url 'products-detail' product.name %}" class="product-thumb" aria-label="상품 상세">
           {% if product.image.first %}
-            <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}">
+            <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}" class="product-image-primary">
+            {% if product.image.all|length > 1 %}
+              <img src="{{ product.image.all.1.image.url }}" alt="{{ product.name }}" class="product-image-hover">
+            {% else %}
+              <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}" class="product-image-hover">
+            {% endif %}
           {% else %}
-            <img src="https://picsum.photos/seed/{{ forloop.counter }}/600/750" alt="{{ product.name }}">
+            <img src="https://picsum.photos/seed/{{ forloop.counter }}/600/750" alt="{{ product.name }}" class="product-image-primary">
+            <img src="https://picsum.photos/seed/{{ forloop.counter|add:100 }}/600/750" alt="{{ product.name }}" class="product-image-hover">
           {% endif %}
         </a>
         <div class="product-info">
