@@ -17,6 +17,7 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False)
 )
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -50,6 +51,7 @@ THIRD_PARTY_APPS = [
     "users.apps.UsersConfig",
     "products.apps.ProductsConfig",
     "categories.apps.CategoriesConfig",
+    "reviews.apps.ReviewsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
@@ -132,7 +134,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -211,19 +213,19 @@ CORS_ALLOW_HEADERS = [
 
 # CSP 설정 (Google GSI 및 Kakao용)
 CSP_SCRIPT_SRC = (
-    "'self'", 
-    "'unsafe-inline'", 
+    "'self'",
+    "'unsafe-inline'",
     "https://accounts.google.com",
     "https://developers.kakao.com",
     "https://t1.kakaocdn.net"
 )
 CSP_FRAME_SRC = (
-    "'self'", 
+    "'self'",
     "https://accounts.google.com",
     "https://kauth.kakao.com"
 )
 CSP_CONNECT_SRC = (
-    "'self'", 
+    "'self'",
     "https://accounts.google.com",
     "https://kauth.kakao.com",
     "https://kapi.kakao.com"
@@ -236,11 +238,6 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    # SSL 설정은 nginx에서 처리하므로 Django에서는 비활성화
-    # SECURE_SSL_REDIRECT = True
-    # SECURE_HSTS_SECONDS = 31536000
-    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    # SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     # CSRF 설정 추가
@@ -255,26 +252,7 @@ else:
     SECURE_BROWSER_XSS_FILTER = False
     SECURE_CONTENT_TYPE_NOSNIFF = False
 
-# 로깅 설정 (에러 디버깅용)
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'django_errors.log'),
-        },
-        'console': {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
+
+if DEBUG:
+    from config.logging import LOGGING
+    LOGGING['loggers']['django']['handlers'] = ['console']
