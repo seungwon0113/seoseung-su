@@ -1,10 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% load product_filters %}
+{% load review_filters %}
 
 {% block style %}
 <link rel="stylesheet" href="{% static 'css/products/detail.css' %}">
-<link rel="stylesheet" href="{% static 'css/products/product-description-or-review.css' %}">
+<link rel="stylesheet" href="{% static 'css/products/product_description.css' %}">
+<link rel="stylesheet" href="{% static 'css/products/review.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -137,25 +139,27 @@
                     <div class="review-summary">
                         <div class="rating-summary">
                             <span class="rating-label">평점:</span>
-                            <span class="rating-value">
+                            <div class="rating-value">
                                 {% if avg_rating > 0 %}
-                                    {% with ''|center:5 as range %}
-                                        {% for i in range %}
-                                            {% if forloop.counter <= avg_rating|floatformat:0 %}★{% else %}☆{% endif %}
-                                        {% endfor %}
-                                    {% endwith %}
-                                    ({{ avg_rating|floatformat:1 }}/5)
+                                    <div class="star-rating" data-rating="{{ avg_rating|floatformat:1 }}">
+                                        <span class="stars-background">★★★★★</span>
+                                        <span class="stars-fill">★★★★★</span>
+                                    </div>
+                                    <span class="rating-text">({{ avg_rating|floatformat:1 }}/5)</span>
                                 {% else %}
-                                    ☆☆☆☆☆ (평점 없음)
+                                    <div class="star-rating" data-rating="0">
+                                        <span class="stars-background">☆☆☆☆☆</span>
+                                        <span class="stars-fill">★★★★★</span>
+                                    </div>
+                                    <span class="rating-text">(평점 없음)</span>
                                 {% endif %}
-                            </span>
+                            </div>
                         </div>
                         <div class="review-count">
                             <span>총 {{ review_count }}개의 리뷰</span>
                         </div>
                     </div>
                     
-                    <!-- 리뷰 작성 폼 -->
                     {% if user.is_authenticated and not user_review %}
                     <div class="review-write-section">
                         <h3>리뷰 작성하기</h3>
@@ -204,34 +208,27 @@
                         </form>
                     </div>
                     {% elif not user.is_authenticated %}
-                    <div class="review-login-required">
-                        <p>리뷰를 작성하려면 로그인이 필요합니다.</p>
-                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">로그인하기</a>
-                    </div>
                     {% endif %}
                     
                     <div class="review-list">
                         {% for review in reviews %}
                         <div class="review-item" id="review-{{ review.id }}">
                             <div class="review-header">
-                                <span class="reviewer-name">{{ review.get_masked_username }}</span>
-                                <span class="review-rating">{{ review.get_star_display }}</span>
-                                <span class="review-date">{{ review.created_at|date:"Y.m.d" }}</span>
+                                <div class="review-header-top">
+                                    <span class="reviewer-name">{{ review.get_masked_username }}</span>
+                                    <span class="review-rating" id="review-rating-{{ review.id }}">{{ review.get_star_display }}</span>
+                                    <span class="review-date">{{ review.created_at|date:"Y.m.d" }}</span>
+                                </div>
                                 {% if user == review.user %}
                                 <div class="review-actions">
-                                    <a href="{% url 'review-update' review.id %}" class="btn-edit">수정</a>
+                                    <button class="btn-review-edit" onclick="editReview({{ review.id }})">수정</button>
                                     <form method="post" action="{% url 'review-delete' review.id %}" style="display: inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn-delete" onclick="return confirm('리뷰를 삭제하시겠습니까?')">삭제</button>
+                                        <button type="submit" class="btn-review-delete" onclick="return confirm('리뷰를 삭제하시겠습니까?')">삭제</button>
                                     </form>
                                 </div>
                                 {% endif %}
                             </div>
-                            
-                            <div class="review-text">
-                                {{ review.content }}
-                            </div>
-                            
                             {% if review.images.all %}
                             <div class="review-images">
                                 {% for image in review.images.all %}
@@ -239,23 +236,58 @@
                                 {% endfor %}
                             </div>
                             {% endif %}
+                            <div class="review-text" id="review-text-{{ review.id }}" data-content="{{ review.content }}" data-rating="{{ review.rating }}">
+                                {{ review.content }}
+                            </div>
+
+                            <div class="review-edit-form" id="review-edit-form-{{ review.id }}" style="display: none;">
+                                <div class="review-edit-rating">
+                                    <div class="rating-select-edit" id="rating-edit-{{ review.id }}">
+                                        <input type="radio" id="rating-edit-5-{{ review.id }}" name="rating-edit-{{ review.id }}" value="5" {% if review.rating == 5 %}checked{% endif %}>
+                                        <label for="rating-edit-5-{{ review.id }}">★</label>
+                                        <input type="radio" id="rating-edit-4-{{ review.id }}" name="rating-edit-{{ review.id }}" value="4" {% if review.rating == 4 %}checked{% endif %}>
+                                        <label for="rating-edit-4-{{ review.id }}">★</label>
+                                        <input type="radio" id="rating-edit-3-{{ review.id }}" name="rating-edit-{{ review.id }}" value="3" {% if review.rating == 3 %}checked{% endif %}>
+                                        <label for="rating-edit-3-{{ review.id }}">★</label>
+                                        <input type="radio" id="rating-edit-2-{{ review.id }}" name="rating-edit-{{ review.id }}" value="2" {% if review.rating == 2 %}checked{% endif %}>
+                                        <label for="rating-edit-2-{{ review.id }}">★</label>
+                                        <input type="radio" id="rating-edit-1-{{ review.id }}" name="rating-edit-{{ review.id }}" value="1" {% if review.rating == 1 %}checked{% endif %}>
+                                        <label for="rating-edit-1-{{ review.id }}">★</label>
+                                    </div>
+                                </div>
+                                <textarea class="review-edit-textarea" id="review-edit-textarea-{{ review.id }}" maxlength="1000" rows="5">{{ review.content }}</textarea>
+                                <div class="review-edit-options">
+                                    <div class="char-counter">
+                                        <span class="char-count" id="review-edit-char-count-{{ review.id }}">{{ review.content|length }}</span>/1000
+                                    </div>
+                                </div>
+                                <div class="review-edit-buttons">
+                                    <button class="btn-review-save" onclick="saveReview({{ review.id }})">저장</button>
+                                    <button class="btn-review-cancel" onclick="cancelEditReview({{ review.id }})">취소</button>
+                                </div>
+                            </div>
                             
-                            <!-- 관리자 답글 섹션 -->
+                            
                             {% if review.comments.all or user.role == 'admin' %}
                             <div class="review-comments">
                                 {% for comment in review.comments.all %}
-                                <div class="comment-item">
+                                <div class="comment-item" id="comment-{{ comment.id }}">
                                     <div class="comment-header">
-                                        <span class="comment-author admin-badge">{{ comment.user.username }}</span>
-                                        <span class="comment-date">{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                                        <div class="comment-header-top">
+                                            <span class="comment-author admin-badge">{{ comment.user.username }}</span>
+                                            <span class="comment-date">{{ comment.created_at|date:"Y.m.d H:i" }}</span>
+                                        </div>
                                         {% if user.role == 'admin' %}
-                                        <form method="post" action="{% url 'review-comment-delete' comment.id %}" style="display: inline;">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn-comment-delete" onclick="return confirm('답글을 삭제하시겠습니까?')">삭제</button>
-                                        </form>
+                                        <div class="comment-actions">
+                                            <button class="btn-comment-edit" onclick="editComment({{ comment.id }})">수정</button>
+                                            <form method="post" action="{% url 'review-comment-delete' comment.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-comment-delete" onclick="return confirm('답글을 삭제하시겠습니까?')">삭제</button>
+                                            </form>
+                                        </div>
                                         {% endif %}
                                     </div>
-                                    <div class="comment-content">
+                                    <div class="comment-content" data-comment-id="{{ comment.id }}" data-content="{{ comment.content }}" data-is-published="{{ comment.is_published|yesno:'true,false' }}">
                                         {% if comment.is_published %}
                                             {{ comment.content }}
                                         {% elif user.role == 'admin' or user == review.user %}
@@ -263,6 +295,22 @@
                                         {% else %}
                                             <span class="private-comment">비공개 답글입니다</span>
                                         {% endif %}
+                                    </div>
+                                    <div class="comment-edit-form" id="edit-form-{{ comment.id }}" style="display: none;">
+                                        <textarea class="comment-edit-textarea" id="edit-textarea-{{ comment.id }}" maxlength="500">{{ comment.content }}</textarea>
+                                        <div class="comment-edit-options">
+                                            <label class="edit-public-checkbox-label">
+                                                <input type="checkbox" id="edit-is-published-{{ comment.id }}" {% if comment.is_published %}checked{% endif %}>
+                                                <span class="checkbox-text">공개 답글</span>
+                                            </label>
+                                            <div class="char-counter">
+                                                <span class="char-count" id="edit-char-count-{{ comment.id }}">{{ comment.content|length }}</span>/500
+                                            </div>
+                                        </div>
+                                        <div class="comment-edit-buttons">
+                                            <button class="btn-comment-save" onclick="saveComment({{ comment.id }})">저장</button>
+                                            <button class="btn-comment-cancel" onclick="cancelEditComment({{ comment.id }})">취소</button>
+                                        </div>
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -371,32 +419,5 @@
 {% block scripts %}
 <script src="{% static 'js/products/product-description-or-review.js' %}"></script>
 <script src="{% static 'js/products/detail.js' %}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const textareas = document.querySelectorAll('.comment-input-wrapper textarea');
-    
-    textareas.forEach(function(textarea) {
-        const charCount = textarea.parentElement.querySelector('.char-count');
-        
-        if (charCount) {
-            function updateCharCount() {
-                const count = textarea.value.length;
-                charCount.textContent = count;
-                
-                // 글자수에 따라 색상 변경
-                if (count > 450) {
-                    charCount.style.color = '#ef4444';
-                } else if (count > 400) {
-                    charCount.style.color = '#f59e0b';
-                } else {
-                    charCount.style.color = '#374151';
-                }
-            }
-            
-            textarea.addEventListener('input', updateCharCount);
-            updateCharCount(); // 초기 카운트 설정
-        }
-    });
-});
-</script>
+<script src="{% static 'js/products/review_rating.js' %}"></script>
 {% endblock %}

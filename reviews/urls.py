@@ -2,6 +2,7 @@ from django.urls import path
 
 from reviews.views.comment_create import ReviewCommentCreateView
 from reviews.views.comment_delete import ReviewCommentDeleteView
+from reviews.views.comment_update import ReviewCommentUpdateView
 from reviews.views.image_delete import DeleteReviewImageView
 from reviews.views.review_create import ReviewCreateView
 from reviews.views.review_delete import ReviewDeleteView
@@ -14,6 +15,7 @@ urlpatterns = [
     path('delete/<int:review_id>/', ReviewDeleteView.as_view(), name='review-delete'),
     path('image/delete/<int:image_id>/', DeleteReviewImageView.as_view(), name='review-image-delete'),
     path('comment/create/<int:review_id>/', ReviewCommentCreateView.as_view(), name='review-comment-create'),
+    path('comment/update/<int:comment_id>/', ReviewCommentUpdateView.as_view(), name='review-comment-update'),
     path('comment/delete/<int:comment_id>/', ReviewCommentDeleteView.as_view(), name='review-comment-delete'),
 ]
 
