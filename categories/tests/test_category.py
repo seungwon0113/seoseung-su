@@ -8,7 +8,7 @@ from config.utils.setup_test_method import TestSetupMixin
 @pytest.mark.django_db
 class TestCategories(TestSetupMixin):
     def setup_method(self) -> None:
-        self.setup_test_data()
+        self.setup_test_user_data()
 
     def test_create_category(self) -> None:
         url = reverse("category-list")

@@ -8,7 +8,7 @@ from config.utils.setup_test_method import TestSetupMixin
 @pytest.mark.django_db
 class TestCategoryList(TestSetupMixin):
     def setup_method(self) -> None:
-        self.setup_test_data()
+        self.setup_test_user_data()
         self.category = Category.objects.create(name="대분류", parent=None)
         self.parent_category = Category.objects.create(name="소분류", parent=self.category)
 
