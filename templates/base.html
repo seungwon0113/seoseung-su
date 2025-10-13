@@ -53,19 +53,19 @@
             </div>
         </div>
         
-        <div class="desktop-sub-categories">
-            {% for main_category in main_categories %}
-            <div class="desktop-sub-category-section" data-parent="category-{{ main_category.id }}">
-                <nav class="desktop-sub-category-nav">
-                    {% for sub_category in main_category.children.all %}
-                    <a href="#">{{ sub_category.name }}</a>
-                    {% empty %}
-                    <span class="no-subcategory">소분류가 없습니다</span>
-                    {% endfor %}
-                </nav>
-            </div>
-            {% endfor %}
-        </div>
+{#        <div class="desktop-sub-categories">#}
+{#            {% for main_category in main_categories %}#}
+{#            <div class="desktop-sub-category-section" data-parent="category-{{ main_category.id }}">#}
+{#                <nav class="desktop-sub-category-nav">#}
+{#                    {% for sub_category in main_category.children.all %}#}
+{#                    <a href="#">{{ sub_category.name }}</a>#}
+{#                    {% empty %}#}
+{#                    <span class="no-subcategory">소분류가 없습니다</span>#}
+{#                    {% endfor %}#}
+{#                </nav>#}
+{#            </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
         
         <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
         
