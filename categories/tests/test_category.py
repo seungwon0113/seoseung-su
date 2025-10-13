@@ -1,47 +1,43 @@
 import pytest
-from django.test import Client
+from django.urls import reverse
 
 from categories.models import Category
-from users.models import User
+from config.utils.setup_test_method import TestSetupMixin
 
 
 @pytest.mark.django_db
-class TestCategories:
+class TestCategories(TestSetupMixin):
     def setup_method(self) -> None:
-        self.client = Client()
-        # 비밀번호를 제대로 해시하여 사용자 생성
-        self.admin_user = User.objects.create_user(
-            role="admin",  # admin으로 수정
-            email="admin@admin.com", 
-            password="create_test_admin", 
-            username="create_test_user", 
-            personal_info_consent=True, 
-            terms_of_use=True
-        )
+        self.setup_test_data()
 
     def test_create_category(self) -> None:
-        user = self.admin_user
-        assert user.role == "admin"
-        if user.role == "admin":
-            category = Category.objects.create(name="대분류카테고리", parent=None)
-            
-            assert category.id is not None
-            assert category.name == "대분류카테고리"
-            assert category.parent is None
-            
-            saved_category = Category.objects.get(name="대분류카테고리")
-            assert saved_category.name == "대분류카테고리"
+        url = reverse("category-list")
+        self.client.force_login(self.admin_user)
+        form_data = {
+            "name": "대분류",
+            "parent": ""
+        }
+        response = self.client.post(url, form_data)
+        assert response.status_code == 302
+        assert Category.objects.filter(name="대분류", parent=None).exists()
 
-    def test_create_parent_category(self) -> None:
-        user = self.admin_user
-        if user.role == "admin":
-            category = Category.objects.create(name="대분류카테고리", parent=None)
-            parent_category = Category.objects.create(name="소분류카테고리", parent=category)
+    def test_create_category_with_invalid_data(self) -> None:
+        self.client.force_login(self.admin_user)
+        url = reverse("category-list")
 
-            assert parent_category.id is not None
-            assert parent_category.name == "소분류카테고리"
-            assert parent_category.parent == category
+        invalid_form_data = {
+            "name": "",
+            "parent": ""
+        }
 
-            saved_parent_category = Category.objects.get(name="소분류카테고리")
-            assert saved_parent_category.name == "소분류카테고리"
+        response = self.client.post(url, invalid_form_data)
+
+        assert response.status_code == 200
+
+        assert 'form' in response.context
+        form = response.context['form']
+        assert not form.is_valid()
+        assert 'name' in form.errors
+
+        assert 'main_categories' in response.context
 
