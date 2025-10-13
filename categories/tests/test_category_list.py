@@ -22,4 +22,5 @@ class TestCategoryList(TestSetupMixin):
 
         main_categories = response.context["main_categories"]
         assert self.category in main_categories
-        assert self.parent_category in self.category.children.all()
+        category_form_context = main_categories.get(pk=self.category.pk)
+        assert self.parent_category in category_form_context.children.all()

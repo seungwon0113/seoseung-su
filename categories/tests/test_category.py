@@ -13,15 +13,13 @@ class TestCategories(TestSetupMixin):
     def test_create_category(self) -> None:
         url = reverse("category-list")
         self.client.force_login(self.admin_user)
-        assert self.admin_user.role == "admin"
-        if self.admin_user.role == "admin":
-            form_data = {
-                "name": "대분류",
-                "parent": ""
-            }
-            response = self.client.post(url, form_data)
-            assert response.status_code == 302
-            assert Category.objects.filter(name="대분류", parent=None).exists()
+        form_data = {
+            "name": "대분류",
+            "parent": ""
+        }
+        response = self.client.post(url, form_data)
+        assert response.status_code == 302
+        assert Category.objects.filter(name="대분류", parent=None).exists()
 
     def test_create_category_with_invalid_data(self) -> None:
         self.client.force_login(self.admin_user)
