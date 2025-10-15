@@ -71,7 +71,8 @@ class TestProductForm(TestSetupMixin):
             'is_sold': False
         }
         form = ProductForm(data=form_data)
-        form.is_valid()
+        assert form.is_valid()
+        assert form.cleaned_data['price'] == 10000.50
 
     def test_product_form_clean_stock_method(self) -> None:
         form_data = {
@@ -83,7 +84,8 @@ class TestProductForm(TestSetupMixin):
             'is_sold': False
         }
         form = ProductForm(data=form_data)
-        form.is_valid()
+        assert form.is_valid()
+        assert form.cleaned_data['stock'] == 50
 
 
 
