@@ -11,6 +11,7 @@ class TestProductDetail(TestSetupMixin):
         self.setup_test_products_data()
 
     def test_product_detail_get(self) -> None:
+        self.client.force_login(self.user)
         url = reverse('products-detail', kwargs={'product_name': "Test Product"})
         response = self.client.get(url)
 

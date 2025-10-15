@@ -81,11 +81,11 @@ class ProductForm(forms.ModelForm):  # type: ignore[type-arg]
     def clean_sale_price(self) -> Union[float, None]:
         sale_price = self.cleaned_data.get('sale_price')
         if sale_price is not None:
-            if sale_price <= 0:
-                raise forms.ValidationError("할인가격은 0보다 커야 합니다.")
+            if sale_price < 0:
+                raise forms.ValidationError("할인 금액은 0보다 크거나 같아야 합니다.")
             price = self.cleaned_data.get('price')
-            if price and sale_price >= price:
-                raise forms.ValidationError("할인가격은 정가보다 낮아야 합니다.")
+            if price and sale_price > price:
+                raise forms.ValidationError("할인 금액은 정가보다 클 수 없습니다.")
         return sale_price
 
 
