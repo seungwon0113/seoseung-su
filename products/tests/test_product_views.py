@@ -3,32 +3,15 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from django.urls import reverse
 
+from config.utils.setup_test_method import TestSetupMixin
 from products.models import Product, ProductImage
 from users.models import User
 
 
 @pytest.mark.django_db
-class TestProductCreateView:
+class TestProductCreateView(TestSetupMixin):
     def setup_method(self) -> None:
-        self.client = Client()
-        self.admin_user = User.objects.create(
-            role="admin",
-            email="admin@admin.com",
-            password="create_test_admin",
-            username="admin_user",
-            personal_info_consent=True,
-            terms_of_use=True,
-            phone_number="01012345678"
-        )
-        self.customer_user = User.objects.create(
-            role="consumer",
-            email="customer@customer.com",
-            password="create_test_customer",
-            username="customer_user",
-            personal_info_consent=True,
-            terms_of_use=True,
-            phone_number="01087654321"
-        )
+        self.setup_test_user_data()
 
     def test_product_create_get_authenticated_admin(self) -> None:
         self.client.force_login(self.admin_user)
@@ -45,7 +28,7 @@ class TestProductCreateView:
         assert response.status_code == 302  # 리다이렉트
 
     def test_product_create_get_authenticated_customer(self) -> None:
-        self.client.force_login(self.customer_user)
+        self.client.force_login(self.user)
         url = reverse('product-create')
         response = self.client.get(url)
         assert response.status_code == 403  # Forbidden

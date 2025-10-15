@@ -8,8 +8,9 @@ from reviews.models import Review, ReviewComment
 class TestReviewComment(TestSetupMixin):
 
     def setup_method(self) -> None:
-        self.setup_test_data()
-        
+        self.setup_test_user_data()
+        self.setup_test_products_data()
+
         self.review = Review.objects.create(
             product=self.product,
             user=self.user,
