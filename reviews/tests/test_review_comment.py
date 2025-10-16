@@ -1,7 +1,8 @@
 import pytest
 
 from config.utils.setup_test_method import TestSetupMixin
-from reviews.models import Review, ReviewComment
+from reviews.forms.review_create import ReviewCommentForm
+from reviews.models import ReviewComment
 
 
 @pytest.mark.django_db
@@ -10,34 +11,34 @@ class TestReviewComment(TestSetupMixin):
     def setup_method(self) -> None:
         self.setup_test_user_data()
         self.setup_test_products_data()
-
-        self.review = Review.objects.create(
-            product=self.product,
-            user=self.user,
-            content='Test Review Content',
-            rating=4
-        )
+        self.setup_test_reviews_data()
+        self.review_comment_field_name = ReviewComment._meta.get_field('content').name
     
     def test_create_review_comment(self) -> None:
         self.client.force_login(user=self.admin_user)
         comment = ReviewComment.objects.create(
-            review=self.review,
+            review=self.customer_review,
             user=self.admin_user,
             content='Great review!'
         )
 
-        assert comment.review == self.review
+        assert comment.review == self.customer_review
         assert comment.user == self.admin_user
         assert comment.content == 'Great review!'
         assert comment.is_published is True
     
     def test_review_comment_relationship(self) -> None:
         comment = ReviewComment.objects.create(
-            review=self.review,
+            review=self.customer_review,
             user=self.admin_user,
             content='Nice product!'
         )
         
-        comments = self.review.comments.all()
+        comments = self.customer_review.comments.all()
         assert comment in comments
         assert comments.count() == 1
+
+    def test_valid_content(self) -> None:
+        form = ReviewCommentForm(data={'content': '정상 입력', 'is_published': True})
+        assert form.is_valid()
+        assert form.cleaned_data['content'] == '정상 입력'

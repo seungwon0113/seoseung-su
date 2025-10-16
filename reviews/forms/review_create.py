@@ -94,6 +94,8 @@ class ReviewCommentForm(forms.ModelForm):  # type: ignore[type-arg]
     
     def clean_content(self) -> str:
         content = cast(str, self.cleaned_data.get('content'))
+        if content is None:
+            content = ''
         if len(content.strip()) < 1:
             raise forms.ValidationError("댓글 내용을 입력해주세요.")
         if len(content) > 500:
