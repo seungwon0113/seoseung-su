@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/admin/product_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">{{ title }}</h1>
+        <a href="{% url 'product-create' %}" class="btn btn-primary">상품 등록</a>
+    </div>
+
+    <div class="product-list">
+        {% if products %}
+        <div class="list-header">
+            <div class="list-info">
+                <span>총 {{ products|length }}개의 상품</span>
+            </div>
+            <div class="list-actions">
+                <select class="filter-select">
+                    <option value="">전체</option>
+                    <option value="live">판매 중</option>
+                    <option value="sold">품절</option>
+                    <option value="draft">미판매</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card" data-status="{% if product.is_sold %}sold{% elif product.is_live %}live{% else %}draft{% endif %}">
+                <div class="product-image">
+                    {% if product.image.first %}
+                        <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="no-image">이미지 없음</div>
+                    {% endif %}
+                    <div class="product-status">
+                        {% if product.is_sold %}
+                            <span class="status sold">품절</span>
+                        {% elif product.is_live %}
+                            <span class="status live">판매중</span>
+                        {% else %}
+                            <span class="status draft">미판매</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description|truncatechars:50 }}</p>
+                    <div class="product-details">
+                        <div class="price-section">
+                            {% if product.sale_price %}
+                                <span class="sale-price">{{ product.sale_price|floatformat:0 }}원</span>
+                                <span class="original-price">{{ product.price|floatformat:0 }}원</span>
+                            {% else %}
+                                <span class="price">{{ product.price|floatformat:0 }}원</span>
+                            {% endif %}
+                        </div>
+                        <span class="stock">재고: {{ product.stock }}개</span>
+                    </div>
+                </div>
+                
+                <div class="product-actions">
+                    <a href="{% url 'product-update' product.id %}" class="btn btn-sm btn-secondary">수정</a>
+                    <button class="btn btn-sm btn-danger" onclick="deleteProduct({{ product.id }})">삭제</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>등록된 상품이 없습니다</h3>
+            <p>새로운 상품을 등록해보세요.</p>
+            <a href="{% url 'product-create' %}" class="btn btn-primary">상품 등록하기</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/admin/product_list.js' %}"></script>
+{% endblock %}

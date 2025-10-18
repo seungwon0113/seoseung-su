@@ -19,7 +19,7 @@ class ProductCreateView(AdminPermission, View):
             'image_form': image_form,
             'title': '상품 등록'
         }
-        return render(request, 'products/admin/product_form.html', context)
+        return render(request, 'products/admin/product_create.html', context)
 
     def post(self, request: HttpRequest) -> HttpResponse:
         form = ProductForm(request.POST)
@@ -29,6 +29,9 @@ class ProductCreateView(AdminPermission, View):
             product = form.save(commit=False)
             product.user = cast(User, request.user)
             product.save()
+            
+            # ManyToMany 필드 저장 (categories 포함)
+            form.save_m2m()
             
             # 이미지 처리 (이미지가 있는 경우에만)
             images = request.FILES.getlist('image')
@@ -44,7 +47,7 @@ class ProductCreateView(AdminPermission, View):
             'image_form': image_form,
             'title': '상품 등록'
         }
-        return render(request, 'products/admin/product_form.html', context)
+        return render(request, 'products/admin/product_create.html', context)
 
 
 class ProductUpdateView(AdminPermission, View):
@@ -58,7 +61,7 @@ class ProductUpdateView(AdminPermission, View):
             'product': product,
             'title': '상품 수정'
         }
-        return render(request, 'products/admin/product_form.html', context)
+        return render(request, 'products/admin/product_create.html', context)
 
     def post(self, request: HttpRequest, pk: int) -> HttpResponse:
         product = get_object_or_404(Product, pk=pk)
@@ -83,6 +86,6 @@ class ProductUpdateView(AdminPermission, View):
             'product': product,
             'title': '상품 수정'
         }
-        return render(request, 'products/admin/product_form.html', context)
+        return render(request, 'products/admin/product_create.html', context)
 
 

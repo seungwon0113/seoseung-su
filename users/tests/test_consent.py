@@ -12,7 +12,7 @@ def client() -> Client:
 def consent_url() -> str:
     return reverse('personal_info_consent')
 
-
+@pytest.mark.django_db
 class TestPersonalInfoConsentView:
     """
     PersonalInfoConsent 뷰는 단순히 약관 내용을 보여주는 정적 페이지입니다.
