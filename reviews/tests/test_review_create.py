@@ -11,10 +11,10 @@ class TestReviewCreate(TestSetupMixin):
         self.setup_test_reviews_data()
 
     def test_create_review(self) -> None:
-        self.client.force_login(user=self.user)
+        self.client.force_login(user=self.customer_user)
         review = self.customer_review
 
-        assert review.user == self.user
+        assert review.user == self.customer_user
         assert review.product == self.product
         assert review.content == 'Customer Review Content'
         assert review.rating == 4

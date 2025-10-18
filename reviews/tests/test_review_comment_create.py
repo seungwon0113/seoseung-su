@@ -1,4 +1,5 @@
 import pytest
+from django.urls import reverse
 
 from config.utils.setup_test_method import TestSetupMixin
 from reviews.forms.review_create import ReviewCommentForm
@@ -6,7 +7,7 @@ from reviews.models import ReviewComment
 
 
 @pytest.mark.django_db
-class TestReviewComment(TestSetupMixin):
+class TestReviewCommentCreate(TestSetupMixin):
 
     def setup_method(self) -> None:
         self.setup_test_user_data()
@@ -42,3 +43,16 @@ class TestReviewComment(TestSetupMixin):
         form = ReviewCommentForm(data={'content': '정상 입력', 'is_published': True})
         assert form.is_valid()
         assert form.cleaned_data['content'] == '정상 입력'
+
+    def test_review_comment_create(self) -> None:
+        self.client.force_login(user=self.admin_user)
+
+        url = reverse('review-comment-create', kwargs={'review_id': self.customer_review.id})
+        data = {
+            'content': '특정 리뷰에 대한 관리자의 답변',
+            'is_published': True,
+        }
+
+        response = self.client.post(url, data)
+        assert response.status_code == 302
+        assert ReviewComment.objects.filter(content='특정 리뷰에 대한 관리자의 답변').exists()

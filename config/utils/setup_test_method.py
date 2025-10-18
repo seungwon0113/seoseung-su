@@ -18,7 +18,7 @@ class TestSetupMixin:
             terms_of_use=True
         )
 
-        self.user = User.objects.create_user(
+        self.customer_user = User.objects.create_user(
             role='customer',
             username='customer',
             email='customer@customer.com',
@@ -44,7 +44,7 @@ class TestSetupMixin:
     def setup_test_reviews_data(self) -> None:
         self.customer_review = Review.objects.create(
             product=self.product,
-            user=self.user,
+            user=self.customer_user,
             content='Customer Review Content',
             rating=4
         )
