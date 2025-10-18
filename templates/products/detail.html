@@ -48,18 +48,20 @@
                 {% endif %}
             </div>
             
-            <div class="shipping-info">
-                <div class="shipping-item">
-                    <span class="shipping-label">국내·해외배송:</span>
-                    <span class="shipping-value">국내배송</span>
+            <div class="size-quantity-section" data-product-stock="{{ products.stock }}">
+                <div class="size-selection">
+                    <div class="size-options">
+                        <button class="size-btn" data-size="S">S</button>
+                        <button class="size-btn" data-size="M">M</button>
+                        <button class="size-btn" data-size="L">L</button>
+                    </div>
                 </div>
-                <div class="shipping-item">
-                    <span class="shipping-label">배송방법:</span>
-                    <span class="shipping-value">택배</span>
-                </div>
-                <div class="shipping-item">
-                    <span class="shipping-label">배송비:</span>
-                    <span class="shipping-value">3,000원(50,000원 이상 구매 시 무료)</span>
+                <div class="quantity-selection">
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                        <span class="quantity-display" id="quantityDisplay">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                    </div>
                 </div>
             </div>
             
@@ -77,6 +79,21 @@
                         {% if products.is_sold %}품절{% else %}판매 준비중{% endif %}
                     </button>
                 {% endif %}
+            </div>
+
+            <div class="shipping-info">
+                <div class="shipping-item">
+                    <span class="shipping-label">국내·해외배송:</span>
+                    <span class="shipping-value">국내배송</span>
+                </div>
+                <div class="shipping-item">
+                    <span class="shipping-label">배송방법:</span>
+                    <span class="shipping-value">택배</span>
+                </div>
+                <div class="shipping-item">
+                    <span class="shipping-label">배송비:</span>
+                    <span class="shipping-value">3,000원(50,000원 이상 구매 시 무료)</span>
+                </div>
             </div>
 
         </div>
@@ -419,4 +436,5 @@
 <script src="{% static 'js/products/product-description-or-review.js' %}"></script>
 <script src="{% static 'js/products/detail.js' %}"></script>
 <script src="{% static 'js/products/review_rating.js' %}"></script>
+<script src="{% static 'js/products/size_quantity.js' %}"></script>
 {% endblock %}
