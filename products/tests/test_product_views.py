@@ -28,7 +28,7 @@ class TestProductCreateView(TestSetupMixin):
         assert response.status_code == 302  # 리다이렉트
 
     def test_product_create_get_authenticated_customer(self) -> None:
-        self.client.force_login(self.user)
+        self.client.force_login(self.customer_user)
         url = reverse('product-create')
         response = self.client.get(url)
         assert response.status_code == 403  # Forbidden
