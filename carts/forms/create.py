@@ -32,6 +32,6 @@ class CartCreateForm(forms.Form):
 
         if product and quantity:
             if quantity > product.stock:
-                raise forms.ValidationError('재고가 부족합니다.')
+                self.add_error('quantity', '재고가 부족합니다.')
 
         return cleaned_data
