@@ -198,3 +198,9 @@ pyrightconfig.json
 .idea/
 
 .git
+
+# pytest/Unit tests
+tests/
+test_*.py
+*/tests/
+*/test_*.py

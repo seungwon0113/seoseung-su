@@ -71,8 +71,22 @@
                         <button class="btn btn-primary btn-large">즉시 구매</button>
                     </div>
                     <div class="secondary-actions">
-                        <button class="btn btn-secondary btn-large">장바구니 담기</button>
-                        <button class="btn btn-thirdly btn-large">찜하기</button>
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'cart-create' %}" class="cart-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ products.id }}">
+                                <input type="hidden" name="quantity" id="cartQuantity" value="1">
+                                <button type="submit" class="btn btn-secondary">장바구니 담기</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-secondary" onclick="alert('로그인이 필요합니다.')">장바구니 담기</button>
+                        {% endif %}
+
+                        <form class="wishlist-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ products.id }}">
+                            <button type="submit" class="btn btn-secondary">찜하기</button>
+                        </form>
                     </div>
                 {% else %}
                     <button class="btn btn-disabled btn-large" disabled>

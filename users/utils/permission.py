@@ -12,3 +12,10 @@ class AdminPermission(UserPassesTestMixin):
     def test_func(self) -> bool:
         user = cast(User, self.request.user)
         return user.is_authenticated and user.role == 'admin'
+
+class UserPermission(UserPassesTestMixin):
+    request: HttpRequest
+
+    def test_func(self) -> bool:
+        user = cast(User, self.request.user)
+        return user.is_authenticated and user.role == 'customer'
