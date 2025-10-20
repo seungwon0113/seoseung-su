@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -17,10 +18,20 @@ class CartUpdateView(LoginRequiredMixin, View):
             
             if quantity <= 0:
                 cart_item.delete()
+                messages.success(request, '상품이 장바구니에서 삭제되었습니다.')
             else:
+                if quantity > cart_item.product.stock:
+                    messages.error(request, f'재고가 부족합니다. (현재 재고: {cart_item.product.stock}개)')
+                    return redirect('cart-detail')
+                
                 cart_item.quantity = quantity
                 cart_item.save()
+                messages.success(request, f'수량이 {quantity}개로 변경되었습니다.')
 
             return redirect('cart-detail')
+        
+        for field, errors in form.errors.items():
+            for error in errors:
+                messages.error(request, str(error))
         
         return redirect('cart-detail')

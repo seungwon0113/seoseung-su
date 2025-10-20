@@ -92,11 +92,7 @@
                         </div>
                         
                         <div class="item-total">
-                            {% if item.product.sale_price %}
-                                {% widthratio item.product.price 1 item.quantity as item_total %}
-                            {% else %}
-                                {% widthratio item.product.price 1 item.quantity as item_total %}
-                            {% endif %}
+                            {% widthratio item.product.price 1 item.quantity as item_total %}
                             <span class="total-price">{{ item_total|floatformat:0 }}원</span>
                         </div>
                         
@@ -137,7 +133,7 @@
                             {% if total_price >= 50000 %}
                                 {{ total_price|floatformat:0 }}원
                             {% else %}
-                                {% widthratio total_price|add:3000 1 1 as final_total %}{{ final_total|floatformat:0 }}원
+                                {{ total_price|add:3000|floatformat:0 }}원
                             {% endif %}
                         </span>
                     </div>

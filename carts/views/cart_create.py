@@ -52,7 +52,6 @@ class CartCreateView(LoginRequiredMixin, View):
             messages.success(request, message)
             return redirect('products-detail', product_name=product.name)
 
-        # 폼 오류 처리
         error_messages = []
         for field, errors in form.errors.items():
             for error in errors:

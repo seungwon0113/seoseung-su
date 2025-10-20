@@ -11,8 +11,8 @@ class User(AbstractUser, BaseModel):
         FEMALE = "Female", "여자"
     class Role(models.TextChoices):
         ADMIN = 'admin', "관리자"
-        CONSUMER = 'consumer', '소비자'
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.CONSUMER)
+        CUSTOMER = 'customer', '소비자'
+    role = models.CharField(max_length=10, choices=Role.choices, default=Role.CUSTOMER)
     gender = models.CharField(max_length=10, choices=Gender.choices, default=None, null=True)
     phone_number = models.CharField(max_length=13, unique=True, null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)
@@ -38,8 +38,8 @@ class PermissionAdmin(BaseModel):
     class Meta:
         db_table = 'admin_permissions'
 
-class PermissionConsumer(BaseModel):
+class PermissionCustomer(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = 'consumer_permissions'
+        db_table = 'customer_permissions'
