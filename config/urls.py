@@ -35,6 +35,7 @@ urlpatterns = [
     path("products/", include("products.urls"), name='products'),
     path("categories/", include("categories.urls"), name='categories'),
     path("reviews/", include("reviews.urls"), name='reviews'),
+    path("inquire/", include("inquire.urls"), name='inquire'),
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

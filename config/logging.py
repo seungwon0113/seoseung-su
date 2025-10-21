@@ -23,5 +23,15 @@ LOGGING: Dict[str, Any] = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'inquire.views': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.core.mail': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }

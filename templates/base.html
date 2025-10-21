@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>SeoSeung-Soo</title>
+    <title>{% block title %}SeoSeung-Soo{% endblock %}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
@@ -46,6 +46,7 @@
                 <a href="#">BEST ITEM</a>
                 <a href="#">EVENT</a>
                 <a href="#">FAQ</a>
+                <a href="{% url 'inquire' %}">INQUIRE</a>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="검색어를 입력하세요" class="search-input">

@@ -52,6 +52,7 @@ THIRD_PARTY_APPS = [
     "products.apps.ProductsConfig",
     "categories.apps.CategoriesConfig",
     "reviews.apps.ReviewsConfig",
+    "inquire.apps.InquireConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
@@ -256,3 +257,9 @@ else:
 if DEBUG:
     from config.logging import LOGGING
     LOGGING['loggers']['django']['handlers'] = ['console']
+
+EMAIL_HOST = env('EMAIL_HOST', default='localhost')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
