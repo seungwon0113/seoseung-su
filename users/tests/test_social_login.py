@@ -1,13 +1,17 @@
 import json
-from typing import TYPE_CHECKING, Any
-from unittest.mock import patch
+from typing import TYPE_CHECKING, Any, Dict, cast
+from unittest.mock import MagicMock, patch
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
 
-from users.services.social_login import GoogleLoginService, KakaoLoginService
+from users.services.social_login import (
+    GoogleLoginService,
+    KakaoLoginService,
+    NaverLoginService,
+)
 
 if TYPE_CHECKING:
     from users.models import User
@@ -460,3 +464,169 @@ class TestSocialLoginService:
             assert error is None
             assert user.kakao_id == '12345'
             assert user.email == 'test@kakao.com'
+
+@pytest.mark.django_db
+class TestNaverLoginService:
+    @patch("users.services.social_login.requests.get")
+    def test_get_access_token_success(self, mock_get: Any) -> None:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"access_token": "mock_token"}
+        mock_get.return_value = mock_response
+
+        token = NaverLoginService.get_access_token("code123", "state456")
+        assert token == "mock_token"
+
+    @patch("users.services.social_login.requests.get")
+    def test_get_access_token_failure(self, mock_get: Any) -> None:
+        mock_response = MagicMock()
+        mock_response.status_code = 401
+        mock_get.return_value = mock_response
+
+        token = NaverLoginService.get_access_token("code123", "state456")
+        assert token is None
+
+    @patch("users.services.social_login.requests.get")
+    def test_get_user_info_success(self, mock_get: Any) -> None:
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "resultcode": "00",
+            "response": {"id": "12345", "email": "test@naver.com"}
+        }
+        mock_get.return_value = mock_response
+
+        user_info = NaverLoginService.get_user_info("access_token_abc")
+        assert user_info is not None
+        assert user_info["email"] == "test@naver.com"
+
+    @patch("users.services.social_login.requests.get")
+    def test_get_user_info_failure_status_code(self, mock_get: Any) -> None:
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        mock_get.return_value = mock_response
+
+        user_info = NaverLoginService.get_user_info("invalid_token")
+        assert user_info is None
+
+    @pytest.mark.django_db
+    def test_create_or_get_user_new(self) -> None:
+        user_info: Dict[str, Any] = {
+            "id": "1",
+            "email": "new@naver.com",
+            "name": "홍길동",
+        }
+        user, error = NaverLoginService.create_or_get_user(user_info)
+        assert error is None
+        assert user is not None
+        assert user.email == "new@naver.com"
+        assert user.username == "new"
+        assert user.naver_id == "1"
+
+    @pytest.mark.django_db
+    def test_create_or_get_user_existing(self) -> None:
+        existing = User.objects.create_user(
+            username="naver_100",
+            email="old@naver.com",
+            personal_info_consent=True,
+            terms_of_use=True,
+            naver_id="100"
+        )
+        user_info = {"id": "100", "email": "new@naver.com"}
+        user, error = NaverLoginService.create_or_get_user(user_info)
+        assert user is not None
+        assert error is None
+        assert user.id == existing.id
+        assert user.email == "new@naver.com"
+
+    @pytest.mark.django_db
+    def test_create_or_get_user_missing_id(self) -> None:
+        user_info = {"email": "missing@naver.com"}
+        user, error = NaverLoginService.create_or_get_user(user_info)
+        assert user is None
+        assert error == "네이버 사용자 ID가 없습니다."
+
+@pytest.mark.django_db
+class TestNaverLoginView:
+
+    def test_get_login_redirects_with_state(self, client: Client) -> None:
+        response = client.get(reverse("naver-login"))
+        assert response.status_code == 302
+        assert "nid.naver.com/oauth2.0/authorize" in (getattr(response, "url", "") or "")
+        assert "naver_state" in client.session
+
+    @patch("users.views.social_login.NaverLoginService.create_or_get_user")
+    @patch("users.views.social_login.NaverLoginService.get_user_info")
+    @patch("users.views.social_login.NaverLoginService.get_access_token")
+    def test_callback_success(
+            self,
+            mock_get_token: MagicMock,
+            mock_get_info: MagicMock,
+            mock_create_user: MagicMock,
+            client: Client,
+    ) -> None:
+
+        session = client.session
+        session["naver_state"] = "mock_state"
+        session.save()
+        client.cookies["sessionid"] = cast(str, session.session_key)
+
+        mock_get_token.return_value = "mock_access_token"
+        mock_get_info.return_value = {"id": "abc123", "email": "user@naver.com", "name": "테스트유저"}
+
+        fake_user = User.objects.create_user(
+            username="user",
+            email="user@naver.com",
+            password="test1234",
+            personal_info_consent=False,
+            terms_of_use=False,
+        )
+        mock_create_user.return_value = (fake_user, None)
+
+        response = client.get(reverse("naver-callback"), {"code": "mock_code", "state": "mock_state"})
+
+        assert response.status_code == 200, f"Unexpected redirect: {getattr(response, 'url', None)}"
+        template_names = [t.name for t in getattr(response, "templates", []) if t.name]
+        assert "base.html" in template_names
+
+    def test_callback_invalid_state_redirects_login(self, client: Client) -> None:
+        """state 불일치 시 로그인으로 리다이렉트"""
+        client.session["naver_state"] = "real_state"
+        client.session.save()
+
+        response = client.get(reverse("naver-callback"), {"code": "abc", "state": "fake"})
+        assert response.status_code == 302
+        assert (getattr(response, "url", "") or "") == reverse("login")
+
+    @patch("users.services.social_login.requests.get")
+    def test_callback_token_failure(self, mock_get: MagicMock, client: Client) -> None:
+        """토큰 발급 실패 시 로그인 리다이렉트"""
+        client.session["naver_state"] = "mock_state"
+        client.session.save()
+
+        mock_res = MagicMock()
+        mock_res.status_code = 401
+        mock_get.return_value = mock_res
+
+        response = client.get(reverse("naver-callback"), {"code": "mock_code", "state": "mock_state"})
+        assert response.status_code == 302
+        assert (getattr(response, "url", "") or "") == reverse("login")
+
+    @patch("users.services.social_login.requests.get")
+    def test_callback_userinfo_failure(self, mock_get: MagicMock, client: Client) -> None:
+        """유저 정보 요청 실패 시 로그인 리다이렉트"""
+        client.session["naver_state"] = "mock_state"
+        client.session.save()
+
+        token_res = MagicMock()
+        token_res.status_code = 200
+        token_res.json.return_value = {"access_token": "mock_token"}
+
+        profile_res = MagicMock()
+        profile_res.status_code = 500
+
+        mock_get.side_effect = [token_res, profile_res]
+
+        response = client.get(reverse("naver-callback"), {"code": "mock_code", "state": "mock_state"})
+        assert response.status_code == 302
+        assert (getattr(response, "url", "") or "") == reverse("login")
