@@ -1,4 +1,3 @@
-from typing import cast
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
@@ -6,12 +5,12 @@ from django.views import View
 
 from inquire.forms.inqurie_create import InquireForm
 from inquire.services.inquire_user_valid import InquireUserValidService
-from users.models import User
 
 
 class InquireView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
-        form = cast(User, InquireForm(user=request.user))
+        form = InquireForm(user=request.user)
+
         context = {'form': form}
         return render(request, 'inquire/inquire.html', context)
 

@@ -1,8 +1,10 @@
-import pytest
 from unittest.mock import patch
-from users.models import User
+
+import pytest
 from django.urls import reverse
+
 from config.utils.setup_test_method import TestSetupMixin
+from users.models import User
 
 
 @pytest.mark.django_db
