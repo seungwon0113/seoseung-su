@@ -1,6 +1,7 @@
-
+import json
 import logging
 import os
+import urllib.parse
 from typing import Any, Dict, Optional, Tuple, cast
 
 import requests
@@ -246,8 +247,7 @@ class NaverLoginService:
             "state": state,
         }
 
-        # dict -> query string 변환
-        query = "&".join(f"{k}={v}" for k, v in params.items())
+        query = urllib.parse.urlencode(params)
         return f"{NaverLoginService.AUTH_URL}?{query}"
 
     @staticmethod
@@ -265,7 +265,7 @@ class NaverLoginService:
 
         try:
             data: Dict[str, Any] = res.json()
-        except Exception:
+        except json.JSONDecodeError:
             return None
 
         if not isinstance(data, dict):
@@ -286,7 +286,9 @@ class NaverLoginService:
             return None
 
         data: Dict[str, Any] = res.json()
-        if data.get("resultcode") != "00":
+        result_code = data.get("resultcode")
+        if result_code != "00":
+            logging.error(f"Naver API returned error code: {result_code}")
             return None
 
         response_data = data.get("response")

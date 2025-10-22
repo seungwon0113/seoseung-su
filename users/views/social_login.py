@@ -1,4 +1,5 @@
 import json
+import logging
 import uuid
 from typing import Optional
 
@@ -101,6 +102,7 @@ class NaverCallbackView(View):
 
         # state 불일치 시 CSRF 의심 요청으로 간주
         if code is None or state is None or state != session_state:
+            logging.warning(f"CSRF suspicion: code={code}, state={state}, session_state={session_state}")
             messages.error(request, "잘못된 접근입니다.")
             return redirect("login")
 
@@ -117,6 +119,7 @@ class NaverCallbackView(View):
 
         user, error = NaverLoginService.create_or_get_user(user_info)
         if error:
+            logging.error(f"Naver login failed: {error}")
             messages.error(request, f"{error}")
             return redirect("login")
 
