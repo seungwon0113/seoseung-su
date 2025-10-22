@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chats/chat.css' %}">
     {% block style %}
     {% endblock %}
 </head>
@@ -122,6 +123,12 @@
         {% block content %}
         {% endblock %}
     </main>
+    <div class="floating-chat">
+        <div class="chat-button">
+            <div class="chat-icon">S</div>
+            <div class="chat-text">CHAT</div>
+        </div>
+    </div>
 
     <footer class="site-footer">
         <div class="container">
