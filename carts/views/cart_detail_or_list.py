@@ -2,10 +2,10 @@ from decimal import Decimal
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import DecimalField, F, Sum
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views import View
-from django.db.models import Sum, F, DecimalField
 
 from carts.models import Cart
 from users.models import User
