@@ -1,13 +1,18 @@
 import json
+import logging
+import uuid
+from typing import Optional
 
+from django.contrib import messages
 from django.contrib.auth import login
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 
-from users.services.social_login import GoogleLoginService
+from users.services.social_login import GoogleLoginService, NaverLoginService
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -76,4 +81,48 @@ class GoogleLoginView(View):
                 'success': False,
                 'message': f'서버 오류가 발생했습니다: {str(e)}'
             }, status=500)
+
+
+class NaverLoginView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        # CSRF 공격 방지를 위한 랜덤 state 값 생성
+        state = uuid.uuid4().hex
+
+        # 나중에 콜백에서 비교하기 위해 세션에 저장
+        request.session["naver_state"] = state
+
+        login_url = NaverLoginService.get_login_url(state)
+        return redirect(login_url)
+
+class NaverCallbackView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        code: Optional[str] = request.GET.get("code")
+        state: Optional[str] = request.GET.get("state")
+        session_state: Optional[str] = request.session.get("naver_state")
+
+        # state 불일치 시 CSRF 의심 요청으로 간주
+        if code is None or state is None or state != session_state:
+            logging.warning(f"CSRF suspicion: code={code}, state={state}, session_state={session_state}")
+            messages.error(request, "잘못된 접근입니다.")
+            return redirect("login")
+
+        access_token = NaverLoginService.get_access_token(code, state)
+        if not access_token:
+            messages.error(request, "토큰 발급에 실패했습니다.")
+            return redirect("login")
+
+
+        user_info = NaverLoginService.get_user_info(access_token)
+        if not user_info:
+            messages.error(request, "사용자 정보 요청에 실패했습니다.")
+            return redirect("login")
+
+        user, error = NaverLoginService.create_or_get_user(user_info)
+        if error:
+            logging.error(f"Naver login failed: {error}")
+            messages.error(request, f"{error}")
+            return redirect("login")
+
+        login(request, user)
+        return render(request, "base.html")
 
