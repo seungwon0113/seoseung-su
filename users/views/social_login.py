@@ -6,7 +6,7 @@ from typing import Optional
 from django.contrib import messages
 from django.contrib.auth import login
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_exempt
@@ -124,5 +124,5 @@ class NaverCallbackView(View):
             return redirect("login")
 
         login(request, user)
-        return render(request, "base.html")
+        return redirect("home")
 
