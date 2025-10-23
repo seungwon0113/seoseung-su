@@ -586,6 +586,7 @@ class TestNaverLoginView:
         response = client.get(reverse("naver-callback"), {"code": "mock_code", "state": "mock_state"})
 
         assert response.status_code == 302
+        assert (getattr(response, "url", "") or "") == reverse("home")
 
     def test_callback_invalid_state_redirects_login(self, client: Client) -> None:
         """state 불일치 시 로그인으로 리다이렉트"""
