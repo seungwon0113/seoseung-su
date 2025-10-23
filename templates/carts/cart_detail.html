@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}장바구니{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/users/mypage.css' %}">
+<link rel="stylesheet" href="{% static 'css/products/detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/carts/cart_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="mypage-layout">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>나의 쇼핑활동</h2>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-category">
+                <h4>나의 정보</h4>
+                <ul>
+                    <li><a href="{% url 'profile-edit' %}">개인정보 수정</a></li>
+                </ul>
+            </div>
+            <div class="menu-category">
+                <h4>주문/배송조회</h4>
+                <ul>
+                    <li><a href="{% url 'order_mypage' %}">배송현황</a></li>
+                    <li><a href="#">취소/교환/반품 내역</a></li>
+                    <li><a href="{% url 'cart-detail' %}" class="active">장바구니</a></li>
+                </ul>
+            </div>
+            <div class="menu-category">
+                <h4>혜택 관리</h4>
+                <ul>
+                    <li><a href="#">쿠폰/적립금</a></li>
+                </ul>
+            </div>
+            <div class="menu-category">
+                <h4>활동 내역</h4>
+                <ul>
+                    <li><a href="#">찜한 상품</a></li>
+                    <li><a href="#">최근 본 상품</a></li>
+                    <li><a href="#">나의 후기</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="mypage-container">
+            {% if cart_items %}
+            <div class="cart-header-section">
+                <div class="section-header">
+                    <h3>장바구니</h3>
+                    <span class="cart-count">총 {{ cart_items|length }}개의 상품</span>
+                </div>
+            </div>
+
+            <div class="cart-items-section">
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                    <div class="cart-item" data-cart-id="{{ item.id }}">
+                        <div class="item-image" onclick="window.location.href='{% url 'products-detail' item.product.name %}'" style="cursor: pointer;">
+                            {% if item.product.image.all %}
+                                <img src="{{ item.product.image.first.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <div class="no-image">이미지 없음</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="item-info">
+                            <h3 class="item-name" onclick="window.location.href='{% url 'products-detail' item.product.name %}'" style="cursor: pointer;">{{ item.product.name }}</h3>
+                            
+                            <div class="item-price">
+                                {% if item.product.sale_price %}
+                                    <span class="sale-price">{{ item.product.price|floatformat:0 }}원</span>
+                                    <span class="original-price">{{ item.product.price|add:item.product.sale_price|floatformat:0 }}원</span>
+                                {% else %}
+                                    <span class="price">{{ item.product.price|floatformat:0 }}원</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="item-quantity">
+                            <form method="post" action="{% url 'cart-update' item.id %}" class="quantity-form">
+                                {% csrf_token %}
+                                <button type="button" class="quantity-btn decrease" onclick="decreaseCartQuantity({{ item.id }})">-</button>
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="quantity-input" id="quantity-{{ item.id }}">
+                                <button type="button" class="quantity-btn increase" onclick="increaseCartQuantity({{ item.id }})">+</button>
+                            </form>
+                        </div>
+                        
+                        <div class="item-total">
+                            {% widthratio item.product.price 1 item.quantity as item_total %}
+                            <span class="total-price">{{ item_total|floatformat:0 }}원</span>
+                        </div>
+                        
+                        <div class="item-actions">
+                            <form method="post" action="{% url 'cart-delete' item.id %}" class="delete-form">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn" onclick="return confirm('이 상품을 장바구니에서 삭제하시겠습니까?')">삭제</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="cart-summary-section">
+                <div class="section-header">
+                    <h3>주문 요약</h3>
+                </div>
+                
+                <div class="summary-content">
+                    <div class="summary-row">
+                        <span class="label">상품 금액:</span>
+                        <span class="value">{{ total_price|floatformat:0 }}원</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">배송비:</span>
+                        <span class="value">
+                            {% if total_price >= 50000 %}
+                                무료
+                            {% else %}
+                                3,000원
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="summary-row total">
+                        <span class="label">총 결제 금액:</span>
+                        <span class="value">
+                            {% if total_price >= 50000 %}
+                                {{ total_price|floatformat:0 }}원
+                            {% else %}
+                                {{ total_price|add:3000|floatformat:0 }}원
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="summary-actions">
+                    <button class="btn btn-primary btn-large">주문하기</button>
+                    <a href="{% url 'home' %}" class="btn btn-secondary btn-large">쇼핑 계속하기</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-cart-section">
+                <div class="section-header">
+                    <h3>장바구니</h3>
+                </div>
+                <div class="empty-cart">
+                    <h3>장바구니가 비어있습니다</h3>
+                    <p>원하는 상품을 장바구니에 담아보세요!</p>
+                    <a href="{% url 'home' %}" class="btn btn-primary">쇼핑하러 가기</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/carts/cart_detail.js' %}"></script>
+{% endblock %}

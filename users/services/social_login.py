@@ -1,5 +1,7 @@
-
+import json
 import logging
+import os
+import urllib.parse
 from typing import Any, Dict, Optional, Tuple, cast
 
 import requests
@@ -228,3 +230,105 @@ class KakaoLoginService:
             return user, None
         except Exception as e:
             return None, str(e)
+
+
+class NaverLoginService:
+
+    AUTH_URL = "https://nid.naver.com/oauth2.0/authorize"
+    TOKEN_URL = "https://nid.naver.com/oauth2.0/token"
+    PROFILE_URL = "https://openapi.naver.com/v1/nid/me"
+
+    @staticmethod
+    def get_login_url(state: str) -> str:
+        params = {
+            "response_type": "code",
+            "client_id": os.getenv("NAVER_CLIENT_ID"),
+            "redirect_uri": os.getenv("NAVER_REDIRECT_URI"),
+            "state": state,
+        }
+
+        query = urllib.parse.urlencode(params)
+        return f"{NaverLoginService.AUTH_URL}?{query}"
+
+    @staticmethod
+    def get_access_token(code: str, state: str) -> Optional[str]:
+        params = {
+            "grant_type": "authorization_code",
+            "client_id": os.getenv("NAVER_CLIENT_ID"),
+            "client_secret": os.getenv("NAVER_CLIENT_SECRET"),
+            "code": code,
+            "state": state,
+        }
+        res = requests.get(NaverLoginService.TOKEN_URL, params=params)
+        if res.status_code != 200:
+            return None
+
+        try:
+            data: Dict[str, Any] = res.json()
+        except json.JSONDecodeError:
+            return None
+
+        if not isinstance(data, dict):
+            return None
+
+        access_token = data.get("access_token")
+        if not access_token:
+            return None
+
+        return cast(Optional[str], access_token)
+
+    @staticmethod
+    def get_user_info(access_token: str) -> Optional[Dict[str, Any]]:
+        headers = {"Authorization": f"Bearer {access_token}"}
+        res = requests.get(NaverLoginService.PROFILE_URL, headers=headers)
+
+        if res.status_code != 200:
+            return None
+
+        data: Dict[str, Any] = res.json()
+        result_code = data.get("resultcode")
+        if result_code != "00":
+            logging.error(f"Naver API returned error code: {result_code}")
+            return None
+
+        response_data = data.get("response")
+        return cast(Optional[Dict[str, Any]], response_data)
+
+    @staticmethod
+    def create_or_get_user(user_info: Dict[str, Any]) -> Tuple[Optional[User], Optional[str]]:
+        if not user_info:
+            return None, "네이버 사용자 정보가 비어있습니다."
+
+        naver_id = user_info.get("id")
+        email = user_info.get("email", "")
+
+        if not naver_id:
+            return None, "네이버 사용자 ID가 없습니다."
+        if not email:
+            return None, "네이버 이메일 정보가 없습니다."
+
+        username = GoogleLoginService._generate_unique_username(email)
+
+        with transaction.atomic():
+            user = User.objects.filter(naver_id=naver_id).first()
+            if user:
+                if user.email != email:
+                    user.email = email
+                    user.save(update_fields=["email"])
+                return user, None
+
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    "username": username,
+                    "naver_id": naver_id,
+                    "personal_info_consent": False,
+                    "terms_of_use": False,
+                },
+            )
+
+            if not created:
+                user.naver_id = naver_id
+                user.save(update_fields=["naver_id"])
+
+        return user, None

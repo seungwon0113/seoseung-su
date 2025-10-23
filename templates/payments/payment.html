@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}결제하기 - SeoSeung-Soo{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/payments/payments.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="order-form">
+        <div class="form-section">
+        <div class="delivery-info-container">
+            <div class="delivery-header">
+                <h3 class="section-title">배송 정보</h3>
+            </div>
+
+            <form class="delivery-form">
+                <div class="form-row">
+                    <div class="form-label-cell">
+                        <label class="form-label">받는사람<span class="required">*</span></label>
+                    </div>
+                    <div class="form-input-cell">
+                        <input type="text" class="form-input" placeholder="이름을 입력해주세요" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-label-cell">
+                        <label class="form-label">주소 <span class="required">*</span></label>
+                    </div>
+                    <div class="form-input-cell">
+                        <div class="address-container">
+                            <div class="postal-code-section">
+                                <input type="text" class="form-input postal-code-input" placeholder="우편번호" readonly>
+                                <button type="button" class="address-search-btn">주소검색</button>
+                            </div>
+                            <input type="text" class="form-input address-input" placeholder="기본주소" readonly>
+                            <input type="text" class="form-input detail-address-input" placeholder="나머지 주소(선택 입력 가능)">
+                        </div>
+                    </div>
+                </div>
+            
+            <div class="form-row">
+                <div class="form-label-cell">
+                    <label class="form-label">휴대전화 <span class="required">*</span></label>
+                </div>
+                <div class="form-input-cell">
+                    <div class="phone-input-wrapper">
+                        <input type="tel" class="form-input phone-input" placeholder="010" maxlength="3" required>
+                        <span class="phone-separator">-</span>
+                        <input type="tel" class="form-input phone-input" placeholder="1234" maxlength="4" required>
+                        <span class="phone-separator">-</span>
+                        <input type="tel" class="form-input phone-input" placeholder="5678" maxlength="4" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-label-cell">
+                    <label class="form-label">이메일 <span class="required">*</span></label>
+                </div>
+                <div class="form-input-cell">
+                    <div class="email-input-wrapper">
+                        <input type="text" class="form-input email-input" placeholder="example" required>
+                        <span class="email-at">@</span>
+                        <select class="form-input email-domain">
+                            <option value="naver.com">naver.com</option>
+                            <option value="gmail.com">gmail.com</option>
+                            <option value="daum.net">daum.net</option>
+                            <option value="yahoo.com">yahoo.com</option>
+                            <option value="custom">직접입력</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-label-cell">
+                    <label class="form-label">메시지 선택</label>
+                </div>
+                <div class="form-input-cell">
+                    <select class="form-input">
+                        <option value="">-- 메시지 선택(선택사항) --</option>
+                        <option value="door">문 앞에 놓아주세요</option>
+                        <option value="security">경비실에 맡겨주세요</option>
+                        <option value="call">배송 전 연락주세요</option>
+                        <option value="custom">직접 입력</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-label-cell">
+                </div>
+                <div class="form-input-cell">
+                    <label class="checkbox-label">
+                        <input type="checkbox" class="checkbox-input">
+                        <span class="checkbox-text">기본 배송지로 저장</span>
+                    </label>
+                </div>
+            </div>
+            </form>
+        </div>
+        </div>
+        <div class="order-items-container">
+        <div class="form-section">
+            <h3 class="section-title">주문상품</h3>
+            <div class="order-items">
+                <div class="order-item">
+                    <img src="https://seoseung-soo.com/media/products/images/3cfce465-55f3-4f50-b58e-3b679699a953.png" alt="상품 이미지" class="item-image">
+                    <div class="item-info">
+                        <div class="item-name">[MADE]버드 스티치 트위드 자켓</div>
+                        <div class="item-options">[옵션: 블랙/FREE]</div>
+                        <div class="item-quantity">수량: 1개</div>
+                        <div class="item-discount">할인금액: -5,690원</div>
+                        <div class="item-price">
+                            <span class="current-price">51,210원</span>
+                            <span class="original-price">56,900원</span>
+                        </div>
+                    </div>
+                    <button class="remove-item">✕</button>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="payment-info-container">
+        <div class="form-section">
+            <div class="shipping-info">
+                <span class="shipping-label">배송비</span>
+                <span class="shipping-value">0 (무료)원</span>
+            </div>
+            
+            <div class="discount-section">
+                <h4 class="discount-title">할인/부가결제</h4>
+                <div class="discount-item">
+                    <span class="discount-label">자동 할인</span>
+                    <select class="discount-select">
+                        <option value="5690">5,690원</option>
+                        <option value="0">할인 없음</option>
+                    </select>
+                </div>
+                <div class="coupon-section">
+                    <span class="coupon-label">할인코드 적용</span>
+                    <div class="coupon-input-group">
+                        <input type="text" class="coupon-input" placeholder="할인코드 입력">
+                        <button type="button" class="coupon-btn">코드 적용</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="payment-method-container">
+        <div class="form-section">
+            <h3 class="section-title">결제 방법</h3>
+            <div class="payment-methods">
+                <label class="payment-method">
+                    <input type="radio" name="payment-method" value="card">
+                    <span class="payment-method-label">신용카드</span>
+                    <span class="payment-method-desc">안전한 카드 결제</span>
+                </label>
+                
+                <div class="card-dropdown-container">
+                    <div class="card-dropdown">
+                        <div class="card-option" data-value="kakao-card">
+                            <div class="card-icon kakao-icon">K</div>
+                            <span>카카오페이 카드</span>
+                        </div>
+                        <div class="card-option" data-value="toss-card">
+                            <div class="card-icon toss-icon">T</div>
+                            <span>토스 페이 카드</span>
+                        </div>
+                        <div class="card-option" data-value="naver-card">
+                            <div class="card-icon naver-icon">N</div>
+                            <span>네이버페이 카드</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <label class="payment-method">
+                    <input type="radio" name="payment-method" value="bank">
+                    <span class="payment-method-label">무통장 입금</span>
+                    <span class="payment-method-desc">가상계좌 입금</span>
+                </label>
+            </div>
+        </div>
+        </div>
+        <div class="payment-button-container">
+        <div class="payment-section">
+            <button type="button" class="payment-button" onclick="processPayment()">
+                <span class="payment-text">51,210원 결제하기</span>
+            </button>
+            <div class="terms-agreement">
+                <p>결제하기 버튼을 클릭하시면 <a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의하는 것으로 간주됩니다.</p>
+            </div>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/payments/payments.js' %}" defer></script>
+{% endblock %}

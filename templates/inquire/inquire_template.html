@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SeoSeung-Soo 문의</title>
+  <link rel="stylesheet" href="{% static 'css/inquire/inquire_template.css' %}">
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h2>💬 SeoSeung-Soo 새 문의가 도착했습니다</h2>
+    </div>
+    
+    <div class="section">
+      <div>
+        {% if user and user.is_authenticated %}
+          <span class="label">이름:</span><span class="value">{{ user.get_full_name|default:user.username }} (회원)</span>
+        {% else %}
+          <span class="label">이름:</span><span class="value">비회원</span>
+        {% endif %}
+      </div>
+      <div><span class="label">이메일:</span><span class="value">{{ email }}</span></div>
+      <div><span class="label">문의 항목:</span><span class="value">{{ item }}</span></div>
+    </div>
+    
+    <div class="section">
+      <div class="label">제목:</div>
+      <div class="value" style="font-size: 18px; font-weight: 600; margin-top: 5px;">{{ title }}</div>
+    </div>
+    
+    <div class="section">
+      <div class="label">문의 내용:</div>
+      <div class="content-section">
+        <div class="value" style="white-space: pre-wrap; line-height: 1.6;">{{ content }}</div>
+      </div>
+    </div>
+    
+    <div class="timestamp">
+      문의 시간: {% now "Y년 m월 d일 H:i" %}
+    </div>
+    
+    <div class="footer">
+      <p>이 메일은 SeoSeung-Soo 고객 문의 시스템을 통해 자동 발송되었습니다.</p>
+      <p>빠른 시일 내에 답변드리겠습니다.</p>
+    </div>
+  </div>
+</body>
+</html>

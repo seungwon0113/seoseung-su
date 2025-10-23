@@ -3,10 +3,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>SeoSeung-Soo</title>
+    <title>{% block title %}SeoSeung-Soo{% endblock %}</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chats/chat.css' %}">
     {% block style %}
     {% endblock %}
 </head>
@@ -40,16 +41,33 @@
         </div>
         <div class="container main-nav">
             <nav class="category-nav">
+                {% for main_category in main_categories %}
+                <a href="#" data-category="category-{{ main_category.id }}">{{ main_category.name|upper }}</a>
+                {% endfor %}
                 <a href="#">BEST ITEM</a>
                 <a href="#">EVENT</a>
-                <a href="#">SALE</a>
                 <a href="#">FAQ</a>
+                <a href="{% url 'inquire' %}">INQUIRE</a>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="검색어를 입력하세요" class="search-input">
                 <button class="search-btn" aria-label="검색"></button>
             </div>
         </div>
+        
+{#        <div class="desktop-sub-categories">#}
+{#            {% for main_category in main_categories %}#}
+{#            <div class="desktop-sub-category-section" data-parent="category-{{ main_category.id }}">#}
+{#                <nav class="desktop-sub-category-nav">#}
+{#                    {% for sub_category in main_category.children.all %}#}
+{#                    <a href="#">{{ sub_category.name }}</a>#}
+{#                    {% empty %}#}
+{#                    <span class="no-subcategory">소분류가 없습니다</span>#}
+{#                    {% endfor %}#}
+{#                </nav>#}
+{#            </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
         
         <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
         
@@ -59,54 +77,23 @@
                 <button class="mobile-menu-close" id="mobileMenuClose" aria-label="메뉴 닫기">×</button>
             </div>
             <nav class="mobile-main-category">
-                <a href="#" data-category="women">WOMEN</a>
-                <a href="#" data-category="men">MEN</a>
-                <a href="#" data-category="accessories">ACCESSORIES</a>
-                <a href="#" data-category="sale">SALE</a>
+                {% for main_category in main_categories %}
+                <a href="#" data-category="category-{{ main_category.id }}">{{ main_category.name|upper }}</a>
+                {% endfor %}
             </nav>
             
             <div class="mobile-sub-categories">
-                <div class="sub-category-section" data-parent="women">
+                {% for main_category in main_categories %}
+                <div class="sub-category-section" data-parent="category-{{ main_category.id }}">
                     <nav class="sub-category-nav">
-                        <a href="#">상의</a>
-                        <a href="#">하의</a>
-                        <a href="#">아우터</a>
-                        <a href="#">원피스</a>
-                        <a href="#">언더웨어</a>
-                        <a href="#">수영복</a>
+                        {% for sub_category in main_category.children.all %}
+                        <a href="#">{{ sub_category.name }}</a>
+                        {% empty %}
+                        <a href="#" class="no-subcategory">소분류가 없습니다</a>
+                        {% endfor %}
                     </nav>
                 </div>
-                
-                <div class="sub-category-section" data-parent="men">
-                    <nav class="sub-category-nav">
-                        <a href="#">상의</a>
-                        <a href="#">하의</a>
-                        <a href="#">아우터</a>
-                        <a href="#">수트</a>
-                        <a href="#">언더웨어</a>
-                        <a href="#">스포츠웨어</a>
-                    </nav>
-                </div>
-                
-                <div class="sub-category-section" data-parent="accessories">
-                    <nav class="sub-category-nav">
-                        <a href="#">신발</a>
-                        <a href="#">가방</a>
-                        <a href="#">모자</a>
-                        <a href="#">벨트</a>
-                        <a href="#">주얼리</a>
-                        <a href="#">시계</a>
-                    </nav>
-                </div>
-                
-                <div class="sub-category-section" data-parent="sale">
-                    <nav class="sub-category-nav">
-                        <a href="#">여성 세일</a>
-                        <a href="#">남성 세일</a>
-                        <a href="#">액세서리 세일</a>
-                        <a href="#">아울렛</a>
-                    </nav>
-                </div>
+                {% endfor %}
             </div>
             
            
@@ -137,7 +124,14 @@
         {% block content %}
         {% endblock %}
     </main>
+    <div class="floating-chat">
+        <div class="chat-button">
+            <div class="chat-icon">S</div>
+            <div class="chat-text">CHAT</div>
+        </div>
+    </div>
 
+     <div id="toast-container" class="toast-container"></div>
     <footer class="site-footer">
         <div class="container">
             <p style="text-align: left">CEO : 정수지</p>
@@ -147,6 +141,8 @@
     </footer>
 
     <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/prevent-drag.js' %}"></script>
+    <script src="{% static 'js/toast.js' %}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -2,87 +2,136 @@
 {% load static %}
 
 {% block style %}
-<link rel="stylesheet" href="{% static 'css/admin/product_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/product_form.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="admin-container">
     <div class="admin-header">
         <h1 class="admin-title">{{ title }}</h1>
-        <a href="{% url 'product-create' %}" class="btn btn-primary">상품 등록</a>
+        <a href="{% url 'product-list' %}" class="btn btn-secondary">목록으로</a>
     </div>
 
-    <div class="product-list">
-        {% if products %}
-        <div class="list-header">
-            <div class="list-info">
-                <span>총 {{ products|length }}개의 상품</span>
-            </div>
-            <div class="list-actions">
-                <select class="filter-select">
-                    <option value="">전체</option>
-                    <option value="live">판매 중</option>
-                    <option value="sold">품절</option>
-                    <option value="draft">미판매</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="product-grid">
-            {% for product in products %}
-            <div class="product-card" data-status="{% if product.is_sold %}sold{% elif product.is_live %}live{% else %}draft{% endif %}">
-                <div class="product-image">
-                    {% if product.image.first %}
-                        <img src="{{ product.image.first.image.url }}" alt="{{ product.name }}">
-                    {% else %}
-                        <div class="no-image">이미지 없음</div>
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data" class="product-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h2 class="section-title">기본 정보</h2>
+                
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">상품명 *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="form-error">{{ form.name.errors.0 }}</div>
                     {% endif %}
-                    <div class="product-status">
-                        {% if product.is_sold %}
-                            <span class="status sold">품절</span>
-                        {% elif product.is_live %}
-                            <span class="status live">판매중</span>
-                        {% else %}
-                            <span class="status draft">미판매</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">상품 설명 *</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="form-error">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.categories.id_for_label }}" class="form-label">카테고리</label>
+                    {{ form.categories }}
+                    {% if form.categories.errors %}
+                        <div class="form-error">{{ form.categories.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.price.id_for_label }}" class="form-label">가격 *</label>
+                        {{ form.price }}
+                        {% if form.price.errors %}
+                            <div class="form-error">{{ form.price.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.sale_price.id_for_label }}" class="form-label">할인가격</label>
+                        {{ form.sale_price }}
+                        {% if form.sale_price.errors %}
+                            <div class="form-error">{{ form.sale_price.errors.0 }}</div>
                         {% endif %}
                     </div>
                 </div>
-                
-                <div class="product-info">
-                    <h3 class="product-name">{{ product.name }}</h3>
-                    <p class="product-description">{{ product.description|truncatechars:50 }}</p>
-                    <div class="product-details">
-                        <div class="price-section">
-                            {% if product.sale_price %}
-                                <span class="sale-price">{{ product.sale_price|floatformat:0 }}원</span>
-                                <span class="original-price">{{ product.price|floatformat:0 }}원</span>
-                            {% else %}
-                                <span class="price">{{ product.price|floatformat:0 }}원</span>
-                            {% endif %}
-                        </div>
-                        <span class="stock">재고: {{ product.stock }}개</span>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.stock.id_for_label }}" class="form-label">재고 *</label>
+                        {{ form.stock }}
+                        {% if form.stock.errors %}
+                            <div class="form-error">{{ form.stock.errors.0 }}</div>
+                        {% endif %}
                     </div>
                 </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">상태 설정</h2>
                 
-                <div class="product-actions">
-                    <a href="{% url 'product-update' product.id %}" class="btn btn-sm btn-secondary">수정</a>
-                    <button class="btn btn-sm btn-danger" onclick="deleteProduct({{ product.id }})">삭제</button>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        {{ form.is_live }}
+                        <span class="checkbox-text">판매 중</span>
+                    </label>
+                    
+                    <label class="checkbox-label">
+                        {{ form.is_sold }}
+                        <span class="checkbox-text">품절</span>
+                    </label>
                 </div>
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-icon">📦</div>
-            <h3>등록된 상품이 없습니다</h3>
-            <p>새로운 상품을 등록해보세요.</p>
-            <a href="{% url 'product-create' %}" class="btn btn-primary">상품 등록하기</a>
-        </div>
-        {% endif %}
+
+            <div class="form-section">
+                <h2 class="section-title">상품 이미지</h2>
+                
+                <div class="form-group">
+                    <label for="{{ image_form.image.id_for_label }}" class="form-label">이미지 업로드 (선택사항)</label>
+                    {{ image_form.image }}
+                    <p class="form-help">여러 이미지를 선택할 수 있습니다. 이미지 없이도 저장 가능합니다.</p>
+                    {% if image_form.image.errors %}
+                        <div class="form-error">{{ image_form.image.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                {% if product and product.image.all %}
+                <div class="existing-images">
+                    <h3 class="sub-title">기존 이미지</h3>
+                    <div class="image-grid">
+                        {% for image in product.image.all %}
+                        <div class="image-item">
+                            <img src="{{ image.image.url }}" alt="상품 이미지" class="preview-image">
+                            <button type="button" class="remove-image-btn" data-image-id="{{ image.id }}" onclick="removeExistingImage({{ image.id }})" title="이미지 삭제">×</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="form-error global-error">
+                {{ form.non_field_errors.0 }}
+            </div>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if product %}수정{% else %}등록{% endif %}
+                </button>
+                <a href="{% url 'product-list' %}" class="btn btn-secondary">취소</a>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'js/admin/product_list.js' %}"></script>
+<script src="{% static 'js/admin/product_form.js' %}"></script>
 {% endblock %}
