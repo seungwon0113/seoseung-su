@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}문의 완료 - SeoSeung-Soo{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/inquire/inquire.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card">
+        <h1 class="success-title">문의가 성공적으로 전송되었습니다!</h1>
+        <p class="success-message">
+            귀하의 소중한 문의사항을 접수했습니다.<br>
+            빠른 시일 내에 답변드리겠습니다.
+        </p>
+        
+        <div class="success-info">
+            <h3>답변 안내</h3>
+            <p>
+                답변은 입력해주신 이메일 주소로 발송됩니다.<br>
+                스팸 메일함도 확인해주세요.
+            </p>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'home' %}" class="btn btn-primary btn-large">
+                홈으로 돌아가기
+            </a>
+            <a href="{% url 'inquire' %}" class="btn btn-secondary btn-large">
+                추가 문의하기
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
