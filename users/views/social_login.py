@@ -124,5 +124,5 @@ class NaverCallbackView(View):
             return redirect("login")
 
         login(request, user)
-        return redirect("/")
+        return redirect("home")
 
