@@ -116,7 +116,7 @@ class TestProductUpdateView:
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
-            role="consumer",
+            role="customer",
             email="customer@customer.com",
             password="create_test_customer",
             username="customer_user",
@@ -248,7 +248,7 @@ class TestDeleteProductImageView:
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
-            role="consumer",
+            role="customer",
             email="customer@customer.com",
             password="create_test_customer",
             username="customer_user",
@@ -318,7 +318,7 @@ class TestProductListView:
             phone_number="01012345678"
         )
         self.customer_user = User.objects.create(
-            role="consumer",
+            role="customer",
             email="customer@customer.com",
             password="create_test_customer",
             username="customer_user",

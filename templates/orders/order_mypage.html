@@ -9,7 +9,6 @@
 
 {% block content %}
 <div class="mypage-layout">
-    <!-- 좌측 사이드바 -->
     <div class="sidebar">
         <div class="sidebar-header">
             <h2>나의 쇼핑활동</h2>
@@ -26,7 +25,7 @@
                 <ul>
                     <li><a href="{% url 'order_mypage' %}" class="active">배송현황</a></li>
                     <li><a href="#">취소/교환/반품 내역</a></li>
-                    <li><a href="#">장바구니</a></li>
+                    <li><a href="{% url 'cart-detail' %}">장바구니</a></li>
                 </ul>
             </div>
             <div class="menu-category">
@@ -74,7 +73,6 @@
             </div>
         </div>
 
-        <!-- 쇼핑혜택 안내 -->
         <div class="benefits-section">
             <div class="benefits-stats">
                 <div class="benefit-item">
@@ -92,7 +90,6 @@
             </div>
         </div>
 
-        <!-- 최근 주문 내역 -->
         <div class="recent-orders-section">
             <div class="section-header">
                 <h3>최근 주문 내역</h3>

@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = [
     "categories.apps.CategoriesConfig",
     "reviews.apps.ReviewsConfig",
     "inquire.apps.InquireConfig",
+    "carts.apps.CartsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
