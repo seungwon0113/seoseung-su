@@ -11,6 +11,8 @@ class TestFavoriteRender(TestSetupMixin):
         self.setup_test_products_data()
 
     def test_favorite_render(self) -> None:
+        self.client.force_login(self.customer_user)
+        
         url = reverse('favorite-list')
         data = {
             "user": self.customer_user.id,

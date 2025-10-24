@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load product_filters %}
 
 {% block title %}장바구니{% endblock %}
 
@@ -74,8 +75,8 @@
                             
                             <div class="item-price">
                                 {% if item.product.sale_price %}
-                                    <span class="sale-price">{{ item.product.price|floatformat:0 }}원</span>
-                                    <span class="original-price">{{ item.product.price|add:item.product.sale_price|floatformat:0 }}원</span>
+                                    <span class="sale-price">{{ item.product.price|discount_amount:item.product.sale_price }}원</span>
+                                    <span class="original-price">{{ item.product.price|floatformat:0 }}원</span>
                                 {% else %}
                                     <span class="price">{{ item.product.price|floatformat:0 }}원</span>
                                 {% endif %}
@@ -92,8 +93,15 @@
                         </div>
                         
                         <div class="item-total">
-                            {% widthratio item.product.price 1 item.quantity as item_total %}
-                            <span class="total-price">{{ item_total|floatformat:0 }}원</span>
+                            {% if item.product.sale_price %}
+                                {% with discounted_price=item.product.price|discount_amount:item.product.sale_price %}
+                                    {% widthratio discounted_price 1 item.quantity as item_total %}
+                                    <span class="total-price">{{ item_total|floatformat:0 }}원</span>
+                                {% endwith %}
+                            {% else %}
+                                {% widthratio item.product.price 1 item.quantity as item_total %}
+                                <span class="total-price">{{ item_total|floatformat:0 }}원</span>
+                            {% endif %}
                         </div>
                         
                         <div class="item-actions">

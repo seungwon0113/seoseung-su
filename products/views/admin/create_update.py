@@ -35,8 +35,10 @@ class ProductCreateView(AdminPermission, View):
             
             # 이미지 처리 (이미지가 있는 경우에만)
             images = request.FILES.getlist('image')
+            print(f"Uploaded images count: {len(images)}")
             if images:
-                for image in images:
+                for i, image in enumerate(images):
+                    print(f"Processing image {i+1}: {image.name}")
                     product_image = ProductImage.objects.create(image=image)
                     product.image.add(product_image)
             
