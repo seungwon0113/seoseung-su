@@ -1,7 +1,7 @@
 from django import forms
 
 
-class FavoriteToggleForm(forms.Form):
+class FavoriteForm(forms.Form):
     product_id = forms.IntegerField(widget=forms.HiddenInput())
     
     def clean_product_id(self) -> int:

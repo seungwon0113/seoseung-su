@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import DecimalField, F, Sum, Case, When
+from django.db.models import Case, DecimalField, F, Sum, When
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.views import View
